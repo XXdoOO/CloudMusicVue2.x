@@ -2,13 +2,13 @@
   <div>
     <input
       type="text"
-      title="请输入你要搜索的歌曲/歌手/专辑"
-      placeholder="请输入你要搜索的歌曲/歌手/专辑"
+      title="搜索歌曲/歌手/专辑"
+      placeholder="搜索歌曲/歌手/专辑"
       maxlength="15"
       v-model="keywords"
       @keyup.enter="searchKeywords(keywords)"
     />
-    <i title="点击搜索"></i>
+    <i title="点击搜索" @click="searchKeywords(keywords)"></i>
   </div>
 </template>
 
@@ -39,28 +39,26 @@ export default {
 }
 
 div {
-  width: 252px;
-  height: 32px;
-  position: absolute;
+  width: 200px;
+  height: 30px;
   background: transparent;
+  position: relative;
   input {
-    width: calc(97% - 2px);
-    height: calc(100% - 2px);
-    // border-radius: 6px;
+    width: 100%;
+    height: 100%;
     border-radius: 6px;
     outline: none;
     border: 1px rgb(66, 62, 62) solid;
-    padding: 0;
-    padding-left: 3%;
-    position: absolute;
+    box-sizing: border-box;
+    padding: 0 3%;
   }
   i {
     width: 25px;
     height: 25px;
-    display: inline-block;
+    display: block;
     position: absolute;
-    right: 8px;
-    top: 3px;
+    right: 5px;
+    top: 2px;
     background: url(../assets/images/search.png) no-repeat;
     background-size: cover;
     cursor: pointer;

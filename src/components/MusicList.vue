@@ -236,10 +236,10 @@ export default {
 }
 
 div#base {
-  width: 800px;
+  width: 700px;
   height: 500px;
   background: @backgroundClor;
-  position: absolute;
+  position: relative;
   color: white;
 
   > ul {

@@ -84,35 +84,40 @@ export default {
   },
   data() {
     return {
-      lyricList: [],
+      lyricList: [{ lyric: "未播放歌曲" }],
       index: 0,
       move: "",
+      count: 0,
     };
   },
   watch: {
     lyric(newVal) {
       let lyricList = newVal.split("\n");
-      let lyricList2 = [];
-      console.log(lyricList);
-      lyricList = lyricList.filter((item) => {
-        return item != "";
-      });
+      this.lyricList = [];
+      // console.log(lyricList);
       for (const item of lyricList) {
-        let time = /\[(.*)\]/.exec(item)[1];
-        time = time.split(/\D/);
-        time =
-          parseFloat(time[0]) * 60 * 1000 +
-          parseFloat(time[1]) * 1000 +
-          parseFloat(time[2]);
-        let lyric = item.split("]")[1];
-        // console.log(time);
-        // console.log(lyric);
-        if (lyric) {
-          lyricList2.push({ time, lyric, color: "" });
+        if (item != "") {
+          let temp = item.split("]");
+          // console.log(temp);
+          if (temp.length === 2) {
+            let lyric = temp[1];
+            let time = temp[0].split("[")[1];
+            time = time.split(/\D/);
+            time =
+              parseFloat(time[0]) * 60 * 1000 +
+              parseFloat(time[1]) * 1000 +
+              parseFloat(time[2]);
+
+            // console.log(time, lyric);
+            if (lyric != "") {
+              this.lyricList.push({ time, lyric, color: "" });
+            }
+          } else {
+            this.lyricList.push({ lyric: temp[0] });
+          }
         }
       }
-      console.log(lyricList2);
-      this.lyricList = lyricList2;
+      // console.log(this.lyricList);
       this.index = 0;
       this.move = 0;
     },
@@ -120,14 +125,15 @@ export default {
       this.audio.addEventListener("timeupdate", () => {
         let time = parseInt(this.audio.currentTime * 1000);
         // console.log(time, this.lyricList[this.index].time);
-        if (time >= this.lyricList[this.index].time) {
-          for (const item of this.lyricList) {
-            this.$set(item, "color", "");
+
+        for (const index in this.lyricList) {
+          this.$set(this.lyricList[index], "color", "");
+          if (time >= this.lyricList[index].time) {
+            this.index = parseInt(index);
           }
-          this.$set(this.lyricList[this.index], "color", "lightGreen");
-          this.index++;
-          this.move = 45 * (this.index + 1);
         }
+        this.$set(this.lyricList[this.index], "color", "lightGreen");
+        this.move = 50 * (this.index + 1);
       });
     },
   },
@@ -135,19 +141,17 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@fontSize: 15px;
 
 * {
   margin: 0;
   padding: 0;
   color: white;
-  font-size: @fontSize;
   user-select: none;
 }
 
 div#base {
   width: 300px;
-  height: calc(@fontSize * 30);
+  height: 500px;
   background: transparent;
   overflow: hidden;
   position: relative;
@@ -161,7 +165,7 @@ div#base {
     > li {
       list-style: none;
       text-align: center;
-      line-height: calc(@fontSize * 3);
+      line-height: 50px;
     }
 
     > li.lightGreen {

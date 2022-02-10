@@ -93,7 +93,7 @@ export default {
       let baseLine = this.$refs.baseLine;
       let isUp = false;
       let width = parseInt(getComputedStyle(baseLine, null)["width"]);
-      let left = baseLine.offsetParent.offsetLeft + 10;
+      let left = baseLine.offsetLeft + 10;
       console.log(left);
       console.log(width);
       console.log(e.pageX);
@@ -104,9 +104,10 @@ export default {
         if (isUp) {
           return;
         }
-        // console.log("现在位置：", left, event.offsetX, event.pageX);
+        console.log("现在位置：", left, event.clientX, event.pageX);
         if (event.pageX - left >= 0 && event.pageX - left <= width) {
-          bar.style.left = line.style.width = event.pageX - left - 3 + "px";
+          console.log(event.clientX, e.clientX);
+          bar.style.left = line.style.width = event.pageX - left + 7 + "px";
         }
       };
 
@@ -126,13 +127,13 @@ export default {
     },
     // 点击进度条
     jumpBar(e) {
-      console.log("点击进度条！");
       let bar = this.$refs.bar;
       let line = this.$refs.line;
       let baseLine = this.$refs.baseLine;
       let left = baseLine.offsetParent.offsetLeft;
-      bar.style.left = e.pageX - left - baseLine.offsetLeft + "px";
-      line.style.width = e.pageX - left + "px";
+      bar.style.left = e.pageX - left - baseLine.offsetLeft - 2 + "px";
+      line.style.width = e.pageX - left - baseLine.offsetLeft + 2 + "px";
+      console.log(e.offsetLeft);
       console.log(baseLine.offsetParent.offsetLeft);
       console.log(
         (parseInt(getComputedStyle(line, null)["width"] - 10) /
@@ -150,9 +151,9 @@ export default {
         getComputedStyle(this.$refs.baseLine, null)["width"]
       );
       this.$refs.bar.style.left =
-        (this.currentTime / this.songInfo.duration) * width - 3 + "px";
+        (this.currentTime / this.songInfo.duration) * width + 4 + "px";
       this.$refs.line.style.width =
-        (this.currentTime / this.songInfo.duration) * width + 2 + "px";
+        (this.currentTime / this.songInfo.duration) * width + 6 + "px";
     },
   },
 };
