@@ -1,7 +1,17 @@
 <template>
   <div id="base">
     <div>
-      <span>{{ songInfo.name }} / {{ songInfo.singer }}</span>
+      <span>
+        <a href="" :title="currentMusic.name">{{ currentMusic.name }}</a>
+        /
+        <a
+          href=""
+          v-for="s in currentMusic.singer"
+          :key="s.id"
+          :title="'@' + s.name"
+          >{{ "@" + s.name }}</a
+        ></span
+      >
       <span>{{ currentTime2 }} / {{ duration2 }}</span>
     </div>
     <div ref="baseLine" @click.stop="jumpBar">
@@ -23,17 +33,17 @@ export default {
         return {};
       },
     },
-    songInfo: {
+    currentMusic: {
       type: Object,
       default() {
-        let songInfo = {
-          song: "未播放",
-          singer: "未播放",
+        let currentMusic = {
+          name: "未播放",
+          singer: [{ id: 1, name: "未播放" }],
           currentTime: 0,
           duration: 0,
         };
-        console.error("传入songInfo对象！", songInfo);
-        return songInfo;
+        console.error("传入currentMusic对象！", currentMusic);
+        return currentMusic;
       },
     },
   },
@@ -47,29 +57,14 @@ export default {
       console.log(newVal);
       newVal.addEventListener("timeupdate", this.timeupdate);
     },
-    songInfo: {
-      immediate: true,
-      deep: true,
-      handler(newVal) {
-        console.log(newVal);
-        console.log(!(newVal.name && newVal.singer && newVal.duration));
-        if (!(newVal.name && newVal.singer && newVal.duration)) {
-          this.songInfo.name = "未播放";
-          this.songInfo.singer = "未播放";
-          this.currentTime = 0;
-          this.songInfo.duration = 0;
-        }
-      },
-    },
   },
   computed: {
     duration2() {
-      let minutes = parseInt(this.songInfo.duration / 60)
+      let seconds = parseInt(this.currentMusic.duration / 1000);
+      let minutes = parseInt(seconds / 60)
         .toString()
         .padStart(2, "0");
-      let seconds = parseInt(this.songInfo.duration % 60)
-        .toString()
-        .padStart(2, "0");
+      seconds = (seconds % 60).toString().padStart(2, "0");
 
       return `${minutes}:${seconds}`;
     },
@@ -94,9 +89,9 @@ export default {
       let isUp = false;
       let width = parseInt(getComputedStyle(baseLine, null)["width"]);
       let left = baseLine.offsetLeft + 10;
-      console.log(left);
-      console.log(width);
-      console.log(e.pageX);
+      // console.log(left);
+      // console.log(width);
+      // console.log(e.pageX);
 
       this.audio.removeEventListener("timeupdate", this.timeupdate);
 
@@ -104,9 +99,9 @@ export default {
         if (isUp) {
           return;
         }
-        console.log("现在位置：", left, event.clientX, event.pageX);
+        // console.log("现在位置：", left, event.clientX, event.pageX);
         if (event.pageX - left >= 0 && event.pageX - left <= width) {
-          console.log(event.clientX, e.clientX);
+          // console.log(event.clientX, e.clientX);
           bar.style.left = line.style.width = event.pageX - left + 7 + "px";
         }
       };
@@ -118,7 +113,7 @@ export default {
         this.audio.currentTime =
           (parseInt(getComputedStyle(line, null)["width"]) /
             parseInt(getComputedStyle(baseLine, null)["width"])) *
-          this.songInfo.duration;
+          (this.currentMusic.duration / 1000);
 
         isUp = true;
         window.onmousemove = null;
@@ -136,14 +131,15 @@ export default {
       console.log(e.offsetLeft);
       console.log(baseLine.offsetParent.offsetLeft);
       console.log(
+        "跳转百分比：",
         (parseInt(getComputedStyle(line, null)["width"] - 10) /
           parseInt(getComputedStyle(baseLine, null)["width"])) *
-          this.songInfo.duration
+          (this.currentMusic.duration / 1000)
       );
       this.audio.currentTime =
         ((parseInt(getComputedStyle(line, null)["width"]) - 10) /
           parseInt(getComputedStyle(baseLine, null)["width"])) *
-        this.songInfo.duration;
+        (this.currentMusic.duration / 1000);
     },
     timeupdate() {
       this.currentTime = this.audio.currentTime;
@@ -151,9 +147,13 @@ export default {
         getComputedStyle(this.$refs.baseLine, null)["width"]
       );
       this.$refs.bar.style.left =
-        (this.currentTime / this.songInfo.duration) * width + 4 + "px";
+        (this.currentTime / (this.currentMusic.duration / 1000)) * width +
+        4 +
+        "px";
       this.$refs.line.style.width =
-        (this.currentTime / this.songInfo.duration) * width + 6 + "px";
+        (this.currentTime / (this.currentMusic.duration / 1000)) * width +
+        6 +
+        "px";
     },
   },
 };
@@ -167,20 +167,38 @@ export default {
 }
 
 div#base {
-  background: transparent;
   height: 40px;
   width: 520px;
   padding: 10px;
 
   > div:nth-child(1) {
+    width: 100%;
+
     > span {
       display: inline-block;
       color: white;
-      opacity: 0.7;
+      opacity: 0.8;
+    }
+
+    > span:nth-child(1) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: calc(100% - 130px);
+
+      > a {
+        color: white;
+        text-decoration: none;
+      }
+
+      > a:hover {
+        text-decoration: underline;
+      }
     }
 
     > span:nth-child(2) {
       float: right;
+      width: 100px;
     }
   }
   > div:nth-child(2) {

@@ -40,56 +40,63 @@
         :cutSong="cutSong"
       ></router-view>
 
-      <div class="playList">
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-        <div><router-view name="PlayList"></router-view></div>
-      </div>
+      <router-view name="PlayList2" :songList="songList"> </router-view>
 
-      <router-view name="Lyric" :audio="audio" :lyric="lyric"></router-view>
+      <Lyric :audio="audio" :lyric="currentMusic.lyric"></Lyric>
     </div>
 
     <div class="footer">
-      <router-view
-        name="ControlBar"
-        :audio="audio"
-        :musicList="playList"
-        :currentIndex="currentIndex"
-        :cutSong="cutSong2"
-      ></router-view>
+      <div class="bars">
+        <ControlBar
+          :audio="audio"
+          :musicList="playList"
+          :currentIndex="currentIndex"
+          :cutSong="cutSong2"
+          :mode="mode.name"
+        ></ControlBar>
 
-      <router-view
-        name="ProgressBar"
-        :audio="audio"
-        :songInfo="songInfo"
-      ></router-view>
+        <ProgressBar :audio="audio" :currentMusic="currentMusic"></ProgressBar>
+      </div>
+
+      <div class="icons">
+        <Icon
+          :customStyles="{
+            ...{
+              background: `url(${ICON}) 0 -205px`,
+              width: '26px',
+              height: '25px',
+            },
+            ...mode.style,
+          }"
+          :title="mode.title"
+          @click.native.stop="switchMode()"
+        />
+        <Icon
+          :customStyles="{
+            background: `url(${ICON}) 0 -96px`,
+            width: '23px',
+            height: '21px',
+          }"
+        />
+        <Icon
+          :customStyles="{
+            background: `url(${ICON}) 0 -120px`,
+            width: '22px',
+            height: '21px',
+          }"
+        />
+        <Icon
+          :customStyles="{
+            background: `url(${ICON}) 0 -399px`,
+            width: '24px',
+            height: '24px',
+          }"
+        />
+      </div>
+
+      <div>
+        <Volume />
+      </div>
     </div>
   </div>
 </template>
@@ -99,27 +106,59 @@ import axios from "axios";
 import PersonalInfo from "./components/PersonalInfo.vue";
 import LoginRegister from "./components/LoginRegister.vue";
 import SearchInput from "./components/SearchInput.vue";
+import Lyric from "./components/Lyric.vue";
+import ControlBar from "./components/ControlBar.vue";
+import ProgressBar from "./components/ProgressBar.vue";
+import Icon from "./components/Icon.vue";
+import Volume from "./components/Volume.vue";
+
+axios.defaults.withCredentials = true;
 
 export default {
   name: "App",
-  components: { PersonalInfo, LoginRegister, SearchInput },
+  components: {
+    PersonalInfo,
+    LoginRegister,
+    SearchInput,
+    Lyric,
+    ProgressBar,
+    ControlBar,
+    Icon,
+    Volume,
+  },
   data() {
     return {
-      musicList: [],
+      audio: null,
+      ICON: require("./assets/images/player.png"),
+      // 当前播放音乐的歌单及下标
       playList: [],
       currentIndex: 0,
-      audio: {},
-      mode: "order",
-      songInfo: {},
-      lyric: "",
+      // 当前查看的歌单
+      musicList: [],
+      // 播放模式
+      mode: {
+        name: "order",
+        style: {},
+        title: "顺序播放",
+      },
+      // 当前播放的歌曲信息
+      currentMusic: {
+        name: "未播放",
+        singer: [{ name: "未播放" }],
+        duration: 0,
+        lyric: "未播放歌曲",
+      },
+      // 当前播放的歌曲歌词
       isShowLoginRegister: false,
       active: ["", "", ""],
       imgSrc: "",
       uid: null,
+      songList: [],
     };
   },
   watch: {
     $route: {
+      immediate: true,
       deep: true,
       handler: function (val, oldVal) {
         console.log(val, oldVal);
@@ -130,6 +169,27 @@ export default {
           this.activeClass(1);
         } else if (path == "/myMusic") {
           this.activeClass(2);
+        }
+
+        if (val.path == "/playlist/track/all") {
+          if (val.query.id) {
+            this.musicList = [];
+
+            this.active[2] = "active";
+
+            axios.get("/api/" + val.fullPath).then((response) => {
+              for (const item of response.data.songs) {
+                this.musicList.push({
+                  id: item.id,
+                  name: item.name,
+                  singer: item.ar,
+                  duration: item.dt,
+                  src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
+                });
+              }
+              console.log("传入的歌单：", this.musicList);
+            });
+          }
         }
       },
     },
@@ -146,9 +206,9 @@ export default {
             this.musicList.push({
               id: item.id,
               name: item.name,
-              singer: item.artists[0].name,
+              singer: item.artists,
               src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
-              duration: parseInt(item.duration / 1000),
+              duration: item.duration,
               imgUrl: item.album.artist.img1v1Url,
             });
           }
@@ -175,14 +235,13 @@ export default {
       return isLogin;
     },
     cutSong(playList, currentIndex) {
-      console.log("切歌");
       this.playList = playList;
       this.currentIndex = currentIndex;
 
       console.log("当前播放的歌单：", this.playList, this.currentIndex);
 
       let item = this.playList[this.currentIndex];
-      this.songInfo = {
+      this.currentMusic = {
         name: item.name,
         singer: item.singer,
         duration: item.duration,
@@ -190,8 +249,7 @@ export default {
 
       axios.get(`api/lyric?id=${item.id}`).then(
         (response) => {
-          console.log(response);
-          this.lyric = response.data.lrc.lyric;
+          this.$set(this.currentMusic, "lyric", response.data.lrc.lyric);
         },
         (error) => {
           console.error(error);
@@ -205,7 +263,7 @@ export default {
       console.log("当前播放的歌单：", this.playList, this.currentIndex);
 
       let item = this.playList[this.currentIndex];
-      this.songInfo = {
+      this.currentMusic = {
         name: item.name,
         singer: item.singer,
         duration: item.duration,
@@ -213,7 +271,7 @@ export default {
 
       axios.get(`api/lyric?id=${item.id}`).then(
         (response) => {
-          console.log(response);
+          this.$set(this.currentMusic, "lyric", response.data.lrc.lyric);
         },
         (error) => {
           console.error(error);
@@ -228,43 +286,74 @@ export default {
       for (let i = 0; i < this.active.length; i++) {
         this.$set(this.active, i, "");
       }
-      console.log(index, this.active);
       this.$set(this.active, index, "active");
     },
+    // 切换模式
+    switchMode() {
+      console.log(this.mode.name);
+      switch (this.mode.name) {
+        case "random":
+          this.mode.name = "order";
+          this.mode.style = {
+            "background-position": "0 -260px",
+            width: "23px",
+            height: "20px",
+          };
+          break;
+        case "cycle":
+          this.mode.name = "random";
+          this.mode.style = {
+            "background-position": "0 -74px",
+            width: "25px",
+            height: "19px",
+          };
+          break;
+        default:
+          this.mode.name = "cycle";
+          this.mode.style = { "background-position": "0 -232px" };
+          break;
+      }
+    },
+  },
+  created() {
+    // 判断登录状态
+    axios
+      .get(`api/login/status?time=${Date.parse(new Date())}`)
+      .then((response) => {
+        console.log("登录状态：", response);
+        if (response.data.data.code == 200 && response.data.data.profile) {
+          this.imgSrc = response.data.data.profile.avatarUrl;
+          this.uid = response.data.data.profile.userId;
+
+          axios.get(`api/user/playlist?uid=${this.uid}`).then((response) => {
+            console.log(response);
+            console.log(response.data.playlist);
+            for (const item of response.data.playlist) {
+              // console.log(item);
+              this.songList.push({
+                id: item.id,
+                imgSrc: item.coverImgUrl,
+                listName: item.name,
+                trackCount: item.trackCount,
+                link: `/playlist/track/all?id=${item.id}`,
+              });
+            }
+            console.log(this.songList);
+          });
+        }
+      });
   },
   mounted() {
     this.audio = this.$refs.audio;
 
-    let path = this.$route.fullPath;
-    if (path == "/") {
-      this.activeClass(0);
-    } else if (path == "/top") {
-      this.activeClass(1);
-    } else if (path == "/myMusic") {
-      this.activeClass(2);
-    }
-
     this.audio.addEventListener("ended", () => {
       console.log("切歌", this.playList);
       let item = this.playList[this.currentIndex];
-      this.songInfo = {
+      this.currentMusic = {
         name: item.name,
         singer: item.singer,
         duration: item.duration,
       };
-    });
-
-    axios.get("api/login/status").then((response) => {
-      console.log(response);
-      if (response.data.data.code == 200) {
-        this.imgSrc = response.data.data.profile.avatarUrl;
-        this.uid = response.data.data.profile.userId;
-
-        axios.get(`api/user/playlist?uid=${this.uid}`).then((response) => {
-          console.log(response);
-          console.log(response.data.playlist);
-        });
-      }
     });
   },
 };
@@ -273,7 +362,6 @@ export default {
 <style lang="less">
 html,
 body {
-  // height: 100%;
   width: 100%;
   background: black;
   margin: 0;
@@ -297,7 +385,7 @@ body {
       justify-content: space-between;
       position: sticky;
       top: 0;
-      z-index: 999;
+      z-index: 998;
 
       > div.logo {
         width: 176px;
@@ -353,28 +441,15 @@ body {
       width: 80%;
       min-width: 1000px;
       background: black;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
+      margin: 50px auto;
 
-      > div {
+      > div:nth-child(1) {
+        width: calc(100% - 500px);
         float: left;
       }
 
-      > div.playList {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        margin-top: 50px;
-        margin-bottom: 100px;
-
-        > div {
-          flex-basis: 20%;
-          display: flex;
-          justify-content: center;
-          margin-bottom: 50px;
-        }
+      > div:last-child {
+        float: right;
       }
     }
 
@@ -386,9 +461,26 @@ body {
       min-width: 1000px;
       background: blue;
       bottom: 0px;
+      display: flex;
+      justify-content: space-between;
 
-      > div {
-        float: left;
+      > div.bars {
+        width: calc(100% - 500px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      > div.icons {
+        margin-left: 50px;
+        width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        > div {
+          display: inline-block;
+        }
       }
     }
   }

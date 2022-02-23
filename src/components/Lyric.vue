@@ -6,7 +6,12 @@
         transition: 'transform 0.5s',
       }"
     >
-      <li v-for="(ll, index) in lyricList" :key="index" :class="ll.color">
+      <li
+        v-for="(ll, index) in lyricList"
+        :key="index"
+        :class="ll.color"
+        ref="line"
+      >
         {{ ll.lyric }}
       </li>
     </ul>
@@ -88,10 +93,34 @@ export default {
       index: 0,
       move: "",
       count: 0,
+      lineList: null,
     };
   },
   watch: {
+    index(newVal) {
+      this.move = 0;
+      for (let i = 0; i <= newVal; i++) {
+        this.move += this.lineList[i].clientHeight;
+      }
+      // console.log(this.move);
+    },
     lyric(newVal) {
+      this.lineList = this.$refs.line;
+      console.log(this.lineList);
+      console.log(this.lineList[0]);
+      this.audio.addEventListener("timeupdate", () => {
+        let time = parseInt(this.audio.currentTime * 1000);
+
+        for (const index in this.lyricList) {
+          this.$set(this.lyricList[index], "color", "");
+          if (time >= this.lyricList[index].time) {
+            this.index = parseInt(index);
+          }
+        }
+
+        this.$set(this.lyricList[this.index], "color", "lightGreen");
+      });
+
       let lyricList = newVal.split("\n");
       this.lyricList = [];
       // console.log(lyricList);
@@ -117,31 +146,15 @@ export default {
           }
         }
       }
-      // console.log(this.lyricList);
+      console.log(this.lyricList);
       this.index = 0;
       this.move = 0;
-    },
-    audio() {
-      this.audio.addEventListener("timeupdate", () => {
-        let time = parseInt(this.audio.currentTime * 1000);
-        // console.log(time, this.lyricList[this.index].time);
-
-        for (const index in this.lyricList) {
-          this.$set(this.lyricList[index], "color", "");
-          if (time >= this.lyricList[index].time) {
-            this.index = parseInt(index);
-          }
-        }
-        this.$set(this.lyricList[this.index], "color", "lightGreen");
-        this.move = 50 * (this.index + 1);
-      });
     },
   },
 };
 </script>
 
 <style lang="less" scoped>
-
 * {
   margin: 0;
   padding: 0;
@@ -166,11 +179,11 @@ div#base {
       list-style: none;
       text-align: center;
       line-height: 50px;
+      word-wrap: break-word;
     }
 
     > li.lightGreen {
       color: lightgreen;
-      font-size: 17px;
       transition: transform 0.5s;
     }
   }

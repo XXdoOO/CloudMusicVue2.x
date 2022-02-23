@@ -16,16 +16,16 @@
       <li
         v-for="(ml, index) in musicList2"
         :key="ml.id"
+        :class="ml.divClass"
         @dblclick.capture="playMusic(index)"
-        :class="ml.liClass"
       >
-        <div>
+        <div :class="ml.divClass">
           <i v-show="ml.selected" @click.stop="selectedMusic(index)"></i>
           <i v-show="!ml.selected" @click.stop="selectedMusic(index)"></i>
         </div>
         <div :class="ml.numberClass">{{ index + 1 }}</div>
         <div>
-          <div>{{ ml.name }}</div>
+          <div :class="ml.divClass">{{ ml.name }}</div>
           <div class="listMenu">
             <i
               title="播放"
@@ -38,8 +38,18 @@
             <i title="分享此歌曲" @dblclick.stop=""></i>
           </div>
         </div>
-        <div>{{ ml.singer }}</div>
-        <div class="duration" title="从此歌单中删除">{{ ml.duration }}</div>
+        <div :class="ml.divClass">
+          <a
+            href=""
+            v-for="(s, index) in ml.singer"
+            :key="index"
+            :title="'@' + s.name"
+            >@{{ s.name }}</a
+          >
+        </div>
+        <div class="duration" title="从此歌单中删除">
+          {{ ml.duration }}
+        </div>
       </li>
     </ul>
   </div>
@@ -60,8 +70,8 @@ export default {
       type: Array,
       default() {
         let musicList = [
-          { name: "", singer: "", duration: 0, lyric: "" },
-          { name: "", singer: "", duration: 0, lyric: "" },
+          { name: "", singer: [], duration: 0, lyric: "" },
+          { name: "", singer: [], duration: 0, lyric: "" },
         ];
         console.error(
           "请传入musicList当前播放的歌曲所在的对象数组！",
@@ -87,65 +97,48 @@ export default {
     };
   },
   watch: {
-    audio(newVal) {
-      console.log(newVal);
-      newVal.addEventListener("canplay", () => {
-        this.inMusicList();
-      });
-    },
     musicList: {
       deep: true,
-      handler(newVal, oldVal) {
-        console.log(newVal, oldVal);
+      handler(newVal) {
+        console.log("接收的歌单：", newVal);
+        this.audio.addEventListener("play", this.inMusicList);
+        this.audio.addEventListener("pause", this.inMusicList);
         // 深复制musicList并初始化数据
         this.musicList2 = JSON.parse(JSON.stringify(newVal));
         for (const item of this.musicList2) {
-          let minutes = parseInt(item.duration / 60)
+          let seconds = parseInt(item.duration / 1000);
+          let minutes = parseInt(seconds / 60)
             .toString()
             .padStart(2, "0");
-          let seconds = parseInt(item.duration % 60)
+          seconds = parseInt(seconds % 60)
             .toString()
             .padStart(2, "0");
 
           this.$set(item, "selected", false);
           this.$set(item, "playClass", "");
           this.$set(item, "numberClass", "");
-          this.$set(item, "liClass", "");
+          this.$set(item, "divClass", "");
           item.duration = `${minutes}:${seconds}`;
         }
+        this.inMusicList();
       },
     },
   },
   methods: {
     playMusic(index) {
-      if (!this.musicList2[index].liClass) {
-        console.log("切歌", this.audio);
+      if (!this.musicList2[index].divClass) {
+        console.log("切歌");
         this.currentIndex2 = index;
         this.cutSong(this.musicList, index);
         this.audio.src = this.musicList2[index].src;
-
-        // 修改播放图标、序号
-        for (let i = 0; i < this.musicList2.length; i++) {
-          this.$set(this.musicList2[i], "playClass", "");
-          this.$set(this.musicList2[i], "numberClass", "");
-          this.$set(this.musicList2[i], "liClass", "");
-        }
-
-        this.$set(this.musicList2[index], "playClass", "playClass");
-        this.$set(this.musicList2[index], "numberClass", "numberClass");
-        this.$set(this.musicList2[index], "liClass", "liClass");
       } else {
-        console.log("未切歌", this.audio.paused ? "播放" : "暂停");
+        console.log("未切歌");
         if (this.audio.paused) {
           console.log("音乐暂停->播放");
           this.audio.play();
-          this.$set(this.musicList2[index], "playClass", "playClass");
-          this.$set(this.musicList2[index], "numberClass", "numberClass");
         } else {
           console.log("音乐播放->暂停");
           this.audio.pause();
-          this.$set(this.musicList2[index], "playClass", "");
-          this.$set(this.musicList2[index], "numberClass", "");
         }
       }
     },
@@ -180,35 +173,48 @@ export default {
       }
     },
     inMusicList() {
-      // 判断当前播放的歌曲是否在搜索结果里面
-      // 修改播放图标、序号
+      // 判断当前播放的歌曲是否在列表里面
+      // 播放图标、序号归位
       for (let i = 0; i < this.musicList2.length; i++) {
         this.$set(this.musicList2[i], "playClass", "");
         this.$set(this.musicList2[i], "numberClass", "");
-        this.$set(this.musicList2[i], "liClass", "");
+        this.$set(this.musicList2[i], "divClass", "");
       }
 
-      console.log(this.musicList2);
+      let isIn = false;
+      let currentIndex = -1;
+
+      console.log(this.musicList2, this.audio.src);
 
       for (const index in this.musicList2) {
         if (this.musicList2[index].src === this.audio.src) {
-          console.log("当前播放的歌曲在这个列表里");
+          isIn = true;
+          currentIndex = index;
 
           if (this.audio.paused) {
             console.log("当前状态：pause");
-            this.$set(this.musicList2[index], "liClass", "liClass");
+            this.$set(this.musicList2[index], "divClass", "divClass");
             this.$set(this.musicList2[index], "playClass", "");
             this.$set(this.musicList2[index], "numberClass", "");
           } else {
             console.log("当前状态：play");
-            this.$set(this.musicList2[index], "liClass", "liClass");
+            this.$set(this.musicList2[index], "divClass", "divClass");
             this.$set(this.musicList2[index], "playClass", "playClass");
             this.$set(this.musicList2[index], "numberClass", "numberClass");
           }
           break;
         }
       }
+
+      if (isIn) {
+        console.log("当前播放的歌曲在这个列表里", currentIndex);
+      } else {
+        console.log("当前播放的歌曲不在这个列表里", currentIndex);
+      }
     },
+  },
+  destroyed() {
+    console.log("ssssss");
   },
 };
 </script>
@@ -235,6 +241,11 @@ export default {
   background-color: silver;
 }
 
+div.divClass,
+li.divClass {
+  opacity: 1 !important;
+}
+
 div#base {
   width: 700px;
   height: 500px;
@@ -246,14 +257,16 @@ div#base {
     min-width: 600px;
     > li {
       height: calc(100% / 9);
-      border-bottom: rgba(255, 255, 255, 0.7) 2px solid;
+      border-bottom: rgba(255, 255, 255, 0.65) 2px solid;
       box-sizing: border-box;
       list-style: none;
       display: flex;
       align-items: center;
-      opacity: 0.7;
+      opacity: 0.8;
+
       div > {
         display: inline-block;
+        opacity: 0.8;
       }
 
       > div:nth-child(1) {
@@ -265,7 +278,7 @@ div#base {
           width: 14px;
           height: 14px;
           border: 1px solid #fff;
-          opacity: 0.7;
+          opacity: 0.8;
         }
 
         i:nth-child(1) {
@@ -285,11 +298,12 @@ div#base {
       }
 
       > div:nth-child(3) {
-        width: calc((100% - 125px) * 0.7);
-        padding-left: 25px;
+        width: calc((100% - 270px) * 0.7);
+        padding-left: 30px;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        opacity: 1;
 
         > div:nth-child(1) {
           overflow: hidden;
@@ -298,11 +312,12 @@ div#base {
         }
 
         > div:nth-child(2) {
-          min-width: 200px;
+          min-width: 160px;
           float: right;
-          display: flex;
           height: 100%;
           display: none;
+          opacity: 1;
+          margin-left: 20px;
 
           i {
             cursor: pointer;
@@ -310,11 +325,11 @@ div#base {
             height: 36px;
             background: skyblue;
             display: inline-block;
-            margin-left: 2%;
+            margin-left: 4px;
             align-items: center;
             background: url(../assets/images/icon_list_menu.png) no-repeat -120px
               0;
-            opacity: 0.7;
+            opacity: 0.8;
           }
 
           i:hover {
@@ -322,7 +337,7 @@ div#base {
           }
 
           i.playClass {
-            background-position: -80px -200px;
+            background-position: -120px -200px;
           }
 
           i:nth-child(2) {
@@ -338,7 +353,25 @@ div#base {
       }
 
       > div:nth-child(4) {
-        width: calc((100% - 100px) * 0.15);
+        width: calc((100% - 270px) * 0.3);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-left: 30px;
+
+        > a {
+          color: white;
+          text-decoration: none;
+        }
+
+        > a:hover {
+          text-decoration: underline;
+        }
+      }
+
+      > div:last-child {
+        margin-left: 20px;
+        width: 70px;
       }
     }
   }
@@ -348,6 +381,10 @@ div#base {
 
     li {
       height: 100%;
+
+      > div:nth-child(3) {
+        opacity: 0.8;
+      }
     }
   }
 
@@ -367,7 +404,7 @@ div#base {
       cursor: pointer;
     }
 
-    li.liClass {
+    > li > div.duration:hover {
       opacity: 1;
     }
   }

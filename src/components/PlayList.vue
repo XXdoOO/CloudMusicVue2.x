@@ -1,10 +1,10 @@
 <template>
   <div class="root">
-    <a :href="link">
+    <router-link :to="link">
       <img :src="imgSrc" alt="" />
-    </a>
+    </router-link>
     <div>
-      <span>{{ name }}</span>
+      <span>{{ listName }}</span>
       <span>共{{ trackCount }}首</span>
     </div>
   </div>
@@ -16,27 +16,20 @@ export default {
   props: {
     link: {
       type: String,
-      default() {
-        return "https://music.163.com/#/playlist?id=3136952023";
-      },
+      default: "https://music.163.com/#/playlist?id=3136952023",
     },
     imgSrc: {
       type: String,
-      default() {
-        return "https://p2.music.126.net/3I-73aQn3YCw-2cZdK1fQw==/109951166027478939.jpg?param=140y140";
-      },
+      default:
+        "https://p2.music.126.net/3I-73aQn3YCw-2cZdK1fQw==/109951166027478939.jpg?param=140y140",
     },
-    name: {
+    listName: {
       type: String,
-      default() {
-        return "我喜欢";
-      },
+      default: "我喜欢",
     },
     trackCount: {
       type: Number,
-      default() {
-        return 133;
-      },
+      default: 133,
     },
   },
 };
@@ -50,7 +43,7 @@ div.root {
   border-radius: 6px;
   overflow: hidden;
   position: relative;
-  
+
   img {
     position: absolute;
     height: 100%;
@@ -59,18 +52,30 @@ div.root {
   }
 
   div {
-    width: 120px;
+    width: 130px;
     height: 15px;
     background: rgba(112, 63, 63, 0.5);
     position: absolute;
     bottom: 0;
-    padding: 5px 15px;
-    display: flex;
-    justify-content: space-between;
+    padding: 5px 10px;
 
     span {
       font-size: 12px;
       color: white;
+      display: inline-block;
+    }
+
+    span:nth-child(1) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      float: left;
+      width: 70px;
+    }
+
+    span:nth-child(2) {
+      width: 50px;
+      float: right;
     }
   }
 }

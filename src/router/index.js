@@ -1,11 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router"
 import MusicList from "../components/MusicList.vue";
-import Menu from "../components/Menu.vue";
-import ProgressBar from "../components/ProgressBar.vue";
-import Lyric from "../components/Lyric.vue";
-import ControlBar from "../components/ControlBar.vue";
-import PlayList from "../components/PlayList.vue";
+import PlayList2 from "../components/PlayList2.vue";
 
 
 Vue.use(VueRouter);
@@ -17,7 +13,8 @@ VueRouter.prototype.push = function push(location) {
 
 export default new VueRouter({
   routes: [
-    { path: "/search", components: { MusicList, Menu, ProgressBar, Lyric, ControlBar } },
-    { path: "/myMusic", components: { PlayList } }
+    { path: "/search", components: { MusicList } },
+    { path: "/playlist/track/all", components: { MusicList } },
+    { path: "/myMusic", components: { PlayList2 } },
   ]
 });
