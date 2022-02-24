@@ -51,8 +51,8 @@
           :audio="audio"
           :musicList="playList"
           :currentIndex="currentIndex"
-          :cutSong="cutSong2"
           :mode="mode.name"
+          :cutSong="cutSong2"
         ></ControlBar>
 
         <ProgressBar :audio="audio" :currentMusic="currentMusic"></ProgressBar>
@@ -71,13 +71,29 @@
           :title="mode.title"
           @click.native.stop="switchMode()"
         />
+
         <Icon
+          v-show="!isLike"
           :customStyles="{
             background: `url(${ICON}) 0 -96px`,
             width: '23px',
             height: '21px',
           }"
+          title="收藏"
+          @click.native.stop="switchCollect(isLike, playList[currentIndex].id)"
         />
+
+        <Icon
+          v-show="isLike"
+          :customStyles="{
+            background: `url(${ICON}) -30px -96px`,
+            width: '23px',
+            height: '21px',
+          }"
+          title="取消收藏"
+          @click.native.stop="switchCollect(isLike, playList[currentIndex].id)"
+        />
+
         <Icon
           :customStyles="{
             background: `url(${ICON}) 0 -120px`,
@@ -130,6 +146,8 @@ export default {
     return {
       audio: null,
       ICON: require("./assets/images/player.png"),
+      // 喜欢列表的音乐id
+      likeList: [],
       // 当前播放音乐的歌单及下标
       playList: [],
       currentIndex: 0,
@@ -141,6 +159,8 @@ export default {
         style: {},
         title: "顺序播放",
       },
+      // 当前播放歌曲是否为用户喜欢的歌曲
+      isLike: false,
       // 当前播放的歌曲信息
       currentMusic: {
         name: "未播放",
@@ -195,6 +215,7 @@ export default {
     },
   },
   methods: {
+    // 搜索
     searchKeywords(keywords) {
       this.$router.push(`/search?keywords=${keywords}`);
       console.log(keywords);
@@ -235,10 +256,11 @@ export default {
       return isLogin;
     },
     cutSong(playList, currentIndex) {
+      // 切歌判断当前歌曲是否为用户喜欢的歌曲
+      this.isLike = this.isLikeSong(playList[currentIndex].id);
+
       this.playList = playList;
       this.currentIndex = currentIndex;
-
-      console.log("当前播放的歌单：", this.playList, this.currentIndex);
 
       let item = this.playList[this.currentIndex];
       this.currentMusic = {
@@ -257,26 +279,8 @@ export default {
       );
     },
     cutSong2(currentIndex) {
-      console.log("切歌");
       this.currentIndex = currentIndex;
-
-      console.log("当前播放的歌单：", this.playList, this.currentIndex);
-
-      let item = this.playList[this.currentIndex];
-      this.currentMusic = {
-        name: item.name,
-        singer: item.singer,
-        duration: item.duration,
-      };
-
-      axios.get(`api/lyric?id=${item.id}`).then(
-        (response) => {
-          this.$set(this.currentMusic, "lyric", response.data.lrc.lyric);
-        },
-        (error) => {
-          console.error(error);
-        }
-      );
+      this.isLike = this.isLikeSong(this.playList[currentIndex].id);
     },
     isDisplayLoginRegister() {
       this.isShowLoginRegister = !this.isShowLoginRegister;
@@ -294,6 +298,7 @@ export default {
       switch (this.mode.name) {
         case "random":
           this.mode.name = "order";
+          this.mode.title = "顺序播放";
           this.mode.style = {
             "background-position": "0 -260px",
             width: "23px",
@@ -302,6 +307,7 @@ export default {
           break;
         case "cycle":
           this.mode.name = "random";
+          this.mode.title = "随机播放";
           this.mode.style = {
             "background-position": "0 -74px",
             width: "25px",
@@ -310,9 +316,37 @@ export default {
           break;
         default:
           this.mode.name = "cycle";
+          this.mode.title = "单曲循环";
           this.mode.style = { "background-position": "0 -232px" };
           break;
       }
+    },
+    // 收藏、取消收藏
+    switchCollect(isLike, id) {
+      console.log(isLike ? "取消喜欢" : "喜欢");
+      this.isLike = !isLike;
+
+      console.log(`api/like?like=${!isLike}&id=${id}`);
+
+      axios.get(`api/like?like=${!isLike}&id=${id}`).then(
+        (response) => {
+          console.log(response);
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
+    },
+    // 判断用户是否喜欢了该歌曲
+    isLikeSong(id) {
+      for (const item of this.likeList) {
+        if (item === id) {
+          console.log("用户喜欢了当前歌曲");
+          return true;
+        }
+      }
+      console.log("用户没有喜欢当前歌曲");
+      return false;
     },
   },
   created() {
@@ -324,6 +358,16 @@ export default {
         if (response.data.data.code == 200 && response.data.data.profile) {
           this.imgSrc = response.data.data.profile.avatarUrl;
           this.uid = response.data.data.profile.userId;
+
+          axios.get(`api/likelist?uid=${this.uid}`).then(
+            (response) => {
+              console.log(response);
+              this.likeList = response.data.ids;
+            },
+            (error) => {
+              console.error(error);
+            }
+          );
 
           axios.get(`api/user/playlist?uid=${this.uid}`).then((response) => {
             console.log(response);
