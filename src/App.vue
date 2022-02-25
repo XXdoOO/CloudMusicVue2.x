@@ -2,9 +2,9 @@
   <div id="app">
     <audio autoplay ref="audio"></audio>
     <LoginRegister
-      v-show="isShowLoginRegister"
       :requestLogin="requestLogin"
-      :isHidden="isDisplayLoginRegister"
+      :isDisplay="isShowLoginRegister"
+      :clickMask="clickMask"
     />
 
     <div class="header">
@@ -27,7 +27,7 @@
       <SearchInput :searchKeywords="searchKeywords" />
 
       <PersonalInfo
-        @click.native.prevent="isShowLoginRegister = !isShowLoginRegister"
+        :clickLoginRegister="isDisplayLoginRegster"
         :imgSrc="imgSrc"
       />
     </div>
@@ -168,7 +168,7 @@ export default {
         duration: 0,
         lyric: "未播放歌曲",
       },
-      // 当前播放的歌曲歌词
+      // 是否显示登录注册页面
       isShowLoginRegister: false,
       active: ["", "", ""],
       imgSrc: "",
@@ -282,10 +282,6 @@ export default {
       this.currentIndex = currentIndex;
       this.isLike = this.isLikeSong(this.playList[currentIndex].id);
     },
-    isDisplayLoginRegister() {
-      this.isShowLoginRegister = !this.isShowLoginRegister;
-      return this.isShowLoginRegister;
-    },
     activeClass(index) {
       for (let i = 0; i < this.active.length; i++) {
         this.$set(this.active, i, "");
@@ -347,6 +343,16 @@ export default {
       }
       console.log("用户没有喜欢当前歌曲");
       return false;
+    },
+    // 点击登录注册
+    isDisplayLoginRegster() {
+      console.log("点击登录注册");
+      this.isShowLoginRegister = true;
+    },
+    // 点击蒙版
+    clickMask() {
+      console.log("点击蒙版");
+      this.isShowLoginRegister = false;
     },
   },
   created() {
