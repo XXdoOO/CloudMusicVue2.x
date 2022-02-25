@@ -1,5 +1,5 @@
 <template>
-  <div class="mask" @click="isHidden" v-show="isHidden">
+  <div class="mask" v-show="isDisplay" @click="clickMask">
     <div class="content" @click.stop="">
       <div
         class="background"
@@ -106,13 +106,6 @@ export default {
         );
       },
     },
-    isHidden: {
-      type: Function,
-      default() {
-        console.error("请传入isHidden函数=>Boolean处理点击蒙版事件");
-        return true;
-      },
-    },
     requestRegister: {
       type: Function,
       default() {
@@ -121,6 +114,8 @@ export default {
         );
       },
     },
+    isDisplay: Boolean,
+    clickMask: Function,
   },
   data() {
     return {
