@@ -2,7 +2,10 @@
   <div class="root">
     <div class="face">
       <img v-show="imgSrc" :src="imgSrc" alt="头像" title="点击修改头像" />
-      <a v-show="!imgSrc" title="点击登录/注册">登录/注册</a>
+      <a v-show="!imgSrc" title="点击登录/注册" @click.stop="clickLoginRegister()"
+        >登录/注册</a
+      >
+      <router-link to="/"></router-link>
     </div>
     <div class="menu" v-show="imgSrc">
       <ul>
@@ -27,12 +30,18 @@ export default {
         return src;
       },
     },
+    clickLoginRegister: {
+      type: Function,
+      default() {
+        console.error("请传入clickLoginRegister函数处理点击登录注册事件");
+      },
+    },
     menuList: {
       type: Array,
       default() {
         return [
           { name: "我的主页", src: "s" },
-          { name: "退出登录", src: "" },
+          { name: "退出登录", src: "api/logout" },
         ];
       },
     },
