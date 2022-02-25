@@ -1,5 +1,5 @@
 <template>
-  <div class="mask" v-show="isDisplay" @click="clickMask">
+  <div class="mask" @click="clickMask">
     <div class="content" @click.stop="">
       <div
         class="background"
@@ -114,7 +114,6 @@ export default {
         );
       },
     },
-    isDisplay: Boolean,
     clickMask: Function,
   },
   data() {
