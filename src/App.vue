@@ -431,6 +431,7 @@ export default {
 html,
 body {
   width: 100%;
+  height: 100%;
   background: black;
   margin: 0;
   padding: 0;
@@ -507,12 +508,14 @@ body {
 
     > div.content {
       width: 80%;
+      height: calc(100% - 270px);
       min-width: 1000px;
       background: black;
       margin: 50px auto;
 
       > div:nth-child(1) {
         width: calc(100% - 500px);
+        height: 100%;
         float: left;
       }
 
