@@ -105,50 +105,82 @@ export default {
       // console.log(this.move);
     },
     lyric(newVal) {
-      this.lineList = this.$refs.line;
-      console.log(this.lineList);
-      console.log(this.lineList[0]);
-      this.audio.addEventListener("timeupdate", () => {
-        let time = parseInt(this.audio.currentTime * 1000);
+      // 初始化组件
+      this.init();
 
-        for (const index in this.lyricList) {
-          this.$set(this.lyricList[index], "color", "");
-          if (time >= this.lyricList[index].time) {
-            this.index = parseInt(index);
-          }
-        }
-
-        this.$set(this.lyricList[this.index], "color", "lightGreen");
-      });
+      console.log("当前播放的歌曲改变：", newVal);
 
       let lyricList = newVal.split("\n");
-      this.lyricList = [];
-      // console.log(lyricList);
-      for (const item of lyricList) {
-        if (item != "") {
+
+      console.log("初始歌词：", lyricList);
+
+      // 去掉空行和只有时间的行
+      lyricList = lyricList.filter((item) => {
+        if (item.trim() !== "" || item.split("]")[1] === "") {
+          return item;
+        }
+      });
+
+      console.log("去掉空行和只有时间的行：", lyricList);
+
+      // 判断传来的歌词是否完善
+      // 为空
+      if (lyricList.length === 0) {
+        lyricList.push({ lyric: "该歌曲无歌词" });
+        return false;
+      } else {
+        for (const item of lyricList) {
           let temp = item.split("]");
-          // console.log(temp);
-          if (temp.length === 2) {
-            let lyric = temp[1];
-            let time = temp[0].split("[")[1];
+          let lyric;
+          let time;
+
+          if (temp.length === 1) {
+            // 只有歌词
+            lyric = "该歌曲歌词不支持自动滚动";
+            break;
+          } else {
+            // 歌词完善
+            lyric = temp[1];
+            time = temp[0].split("[")[1];
             time = time.split(/\D/);
             time =
               parseFloat(time[0]) * 60 * 1000 +
               parseFloat(time[1]) * 1000 +
               parseFloat(time[2]);
-
-            // console.log(time, lyric);
-            if (lyric != "") {
-              this.lyricList.push({ time, lyric, color: "" });
-            }
-          } else {
-            this.lyricList.push({ lyric: temp[0] });
           }
+
+          this.lyricList.push({ time, lyric, color: "" });
         }
       }
-      console.log(this.lyricList);
+
+      console.log("最终歌词：", this.lyricList);
+
+      // 监听当前音频播放
+      this.audio.addEventListener("timeupdate", this.timeupdate);
+    },
+  },
+  methods: {
+    // 初始化
+    init() {
+      this.lyricList = [];
       this.index = 0;
-      this.move = 0;
+      this.move = "";
+      this.count = 0;
+      this.lineList = this.$refs.line;
+
+      this.audio.removeEventListener("timeupdate", this.timeupdate);
+    },
+    timeupdate() {
+      let time = parseInt(this.audio.currentTime * 1000);
+
+      for (const index in this.lyricList) {
+        this.$set(this.lyricList[index], "color", "");
+        if (time >= this.lyricList[index].time) {
+          this.index = parseInt(index);
+        }
+      }
+
+      this.$set(this.lyricList[this.index], "color", "lightGreen");
     },
   },
 };

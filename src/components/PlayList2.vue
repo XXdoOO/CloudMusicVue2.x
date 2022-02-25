@@ -17,10 +17,6 @@ export default {
   name: "PlayList2",
   components: { PlayList },
   props: { songList: Array },
-  beforeRouteEnter(to, from, next) {
-    console.log(to, from);
-    next();
-  },
 };
 </script>
 

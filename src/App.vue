@@ -1,11 +1,11 @@
 <template>
   <div id="app">
     <audio autoplay ref="audio"></audio>
-    <LoginRegister
-      v-show="isShowLoginRegister"
+    <router-view
+      name="LoginRegister"
       :requestLogin="requestLogin"
-      :isHidden="isDisplayLoginRegister"
-    />
+      :clickMask="clickMask"
+    ></router-view>
 
     <div class="header">
       <div class="logo">
@@ -14,7 +14,7 @@
 
       <ul class="option">
         <li :class="active[0]" @click.stop="activeClass(0)">
-          <router-link to="/">首页</router-link>
+          <router-link to="/index">首页</router-link>
         </li>
         <li :class="active[1]" @click.stop="activeClass(1)">
           <router-link to="/top">排行榜</router-link>
@@ -27,7 +27,7 @@
       <SearchInput :searchKeywords="searchKeywords" />
 
       <PersonalInfo
-        @click.native.prevent="isShowLoginRegister = !isShowLoginRegister"
+        :clickLoginRegister="isDisplayLoginRegster"
         :imgSrc="imgSrc"
       />
     </div>
@@ -120,7 +120,6 @@
 <script>
 import axios from "axios";
 import PersonalInfo from "./components/PersonalInfo.vue";
-import LoginRegister from "./components/LoginRegister.vue";
 import SearchInput from "./components/SearchInput.vue";
 import Lyric from "./components/Lyric.vue";
 import ControlBar from "./components/ControlBar.vue";
@@ -134,7 +133,6 @@ export default {
   name: "App",
   components: {
     PersonalInfo,
-    LoginRegister,
     SearchInput,
     Lyric,
     ProgressBar,
@@ -148,19 +146,24 @@ export default {
       ICON: require("./assets/images/player.png"),
       // 喜欢列表的音乐id
       likeList: [],
+
       // 当前播放音乐的歌单及下标
       playList: [],
       currentIndex: 0,
+
       // 当前查看的歌单
       musicList: [],
+
       // 播放模式
       mode: {
         name: "order",
         style: {},
         title: "顺序播放",
       },
+
       // 当前播放歌曲是否为用户喜欢的歌曲
       isLike: false,
+
       // 当前播放的歌曲信息
       currentMusic: {
         name: "未播放",
@@ -168,9 +171,9 @@ export default {
         duration: 0,
         lyric: "未播放歌曲",
       },
-      // 当前播放的歌曲歌词
-      isShowLoginRegister: false,
       active: ["", "", ""],
+
+      // 头像图片
       imgSrc: "",
       uid: null,
       songList: [],
@@ -180,24 +183,79 @@ export default {
     $route: {
       immediate: true,
       deep: true,
-      handler: function (val, oldVal) {
-        console.log(val, oldVal);
-        let path = val.fullPath;
-        if (path == "/") {
+      handler: function (to, from) {
+        console.log(to, from);
+        let name = to.name;
+        let path = to.fullPath.split("/")[1];
+        console.log(path);
+
+        if (path == "") {
           this.activeClass(0);
-        } else if (path == "/top") {
+        } else if (path == "top") {
           this.activeClass(1);
-        } else if (path == "/myMusic") {
+        } else if (path == "myMusic") {
           this.activeClass(2);
         }
 
-        if (val.path == "/playlist/track/all") {
-          if (val.query.id) {
-            this.musicList = [];
+        if (name === "top") {
+          console.log("发送top请求");
+        } else if (name === "myMusic") {
+          // 判断登录状态
+          axios
+            .get(`api/login/status?time=${Date.parse(new Date())}`)
+            .then((response) => {
+              console.log("登录状态：", response);
+              if (response.data.data.account && response.data.data.profile) {
+                this.imgSrc = response.data.data.profile.avatarUrl;
+                this.uid = response.data.data.profile.userId;
 
-            this.active[2] = "active";
+                console.log(this.uid);
 
-            axios.get("/api/" + val.fullPath).then((response) => {
+                localStorage.setItem("authorization", true);
+
+                console.log("获取用户全部歌单", this.uid);
+                // 获取用户全部歌单
+                this.songList = [];
+                axios
+                  .get(`api/user/playlist?uid=${this.uid}`)
+                  .then((response) => {
+                    console.log(response);
+                    console.log(response.data.playlist);
+                    for (const item of response.data.playlist) {
+                      this.songList.push({
+                        id: item.id,
+                        imgSrc: item.coverImgUrl,
+                        listName: item.name,
+                        trackCount: item.trackCount,
+                        link: `myMusic/playList?id=${item.id}`,
+                      });
+                    }
+                    console.log(this.songList);
+                  });
+
+                // 获取我喜欢歌单
+                this.likeList = [];
+                axios.get(`api/likelist?uid=${this.uid}`).then(
+                  (response) => {
+                    console.log(response);
+                    this.likeList = response.data.ids;
+                  },
+                  (error) => {
+                    console.error(error);
+                  }
+                );
+              } else {
+                localStorage.setItem("authorization", false);
+              }
+            });
+        } else if (name === "mplayList") {
+          console.log(to, from);
+          axios
+            .get(`api/playlist/track/all?id=${to.query.id}`)
+            .then((response) => {
+              console.log(response);
+              this.musicList = [];
+              console.log(response.data.songs);
               for (const item of response.data.songs) {
                 this.musicList.push({
                   id: item.id,
@@ -207,9 +265,7 @@ export default {
                   src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
                 });
               }
-              console.log("传入的歌单：", this.musicList);
             });
-          }
         }
       },
     },
@@ -250,9 +306,9 @@ export default {
           if (response.data.code == 200) {
             this.imgSrc = response.data.profile.avatarUrl;
             isLogin = true;
+            this.$router.push("/myMusic");
           }
         });
-      this.isShowLoginRegister = false;
       return isLogin;
     },
     cutSong(playList, currentIndex) {
@@ -281,10 +337,6 @@ export default {
     cutSong2(currentIndex) {
       this.currentIndex = currentIndex;
       this.isLike = this.isLikeSong(this.playList[currentIndex].id);
-    },
-    isDisplayLoginRegister() {
-      this.isShowLoginRegister = !this.isShowLoginRegister;
-      return this.isShowLoginRegister;
     },
     activeClass(index) {
       for (let i = 0; i < this.active.length; i++) {
@@ -348,44 +400,16 @@ export default {
       console.log("用户没有喜欢当前歌曲");
       return false;
     },
-  },
-  created() {
-    // 判断登录状态
-    axios
-      .get(`api/login/status?time=${Date.parse(new Date())}`)
-      .then((response) => {
-        console.log("登录状态：", response);
-        if (response.data.data.code == 200 && response.data.data.profile) {
-          this.imgSrc = response.data.data.profile.avatarUrl;
-          this.uid = response.data.data.profile.userId;
-
-          axios.get(`api/likelist?uid=${this.uid}`).then(
-            (response) => {
-              console.log(response);
-              this.likeList = response.data.ids;
-            },
-            (error) => {
-              console.error(error);
-            }
-          );
-
-          axios.get(`api/user/playlist?uid=${this.uid}`).then((response) => {
-            console.log(response);
-            console.log(response.data.playlist);
-            for (const item of response.data.playlist) {
-              // console.log(item);
-              this.songList.push({
-                id: item.id,
-                imgSrc: item.coverImgUrl,
-                listName: item.name,
-                trackCount: item.trackCount,
-                link: `/playlist/track/all?id=${item.id}`,
-              });
-            }
-            console.log(this.songList);
-          });
-        }
-      });
+    // 点击登录注册
+    isDisplayLoginRegster() {
+      console.log("点击登录注册");
+      this.$router.push("/login");
+    },
+    // 点击蒙版
+    clickMask() {
+      console.log("点击蒙版");
+      this.$router.push("/myMusic");
+    },
   },
   mounted() {
     this.audio = this.$refs.audio;
