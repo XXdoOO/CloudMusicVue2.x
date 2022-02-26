@@ -1,13 +1,22 @@
 import Vue from "vue";
 import VueRouter from "vue-router"
-import MusicList from "../components/MusicList.vue";
+import LoginRegister from "../components/pages/LoginRegister.vue";
 import PlayList2 from "../components/PlayList2.vue";
-import LoginRegister from "../components/LoginRegister.vue";
+import MusicList from "../components/MusicList.vue";
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
+    {
+      path: "/",
+      name: "index",
+      component: { PlayList2 },
+    },
+    {
+      path: "/index",
+      redirect: "/",
+    },
     {
       path: "/top",
       name: "top",
@@ -39,6 +48,11 @@ const router = new VueRouter({
       name: "login",
       components: { LoginRegister }
     },
+    {
+      path:"/logout",
+      name:"logout",
+      redirect: "/"
+    }
   ]
 });
 
