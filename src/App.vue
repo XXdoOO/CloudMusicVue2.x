@@ -181,7 +181,6 @@ export default {
   },
   watch: {
     $route: {
-      immediate: true,
       deep: true,
       handler: function (to, from) {
         console.log(to, from);
@@ -200,54 +199,23 @@ export default {
         if (name === "top") {
           console.log("发送top请求");
         } else if (name === "myMusic") {
-          // 判断登录状态
-          axios
-            .get(`api/login/status?time=${Date.parse(new Date())}`)
-            .then((response) => {
-              console.log("登录状态：", response);
-              if (response.data.data.account && response.data.data.profile) {
-                this.imgSrc = response.data.data.profile.avatarUrl;
-                this.uid = response.data.data.profile.userId;
-
-                console.log(this.uid);
-
-                localStorage.setItem("authorization", true);
-
-                console.log("获取用户全部歌单", this.uid);
-                // 获取用户全部歌单
-                this.songList = [];
-                axios
-                  .get(`api/user/playlist?uid=${this.uid}`)
-                  .then((response) => {
-                    console.log(response);
-                    console.log(response.data.playlist);
-                    for (const item of response.data.playlist) {
-                      this.songList.push({
-                        id: item.id,
-                        imgSrc: item.coverImgUrl,
-                        listName: item.name,
-                        trackCount: item.trackCount,
-                        link: `myMusic/playList?id=${item.id}`,
-                      });
-                    }
-                    console.log(this.songList);
-                  });
-
-                // 获取我喜欢歌单
-                this.likeList = [];
-                axios.get(`api/likelist?uid=${this.uid}`).then(
-                  (response) => {
-                    console.log(response);
-                    this.likeList = response.data.ids;
-                  },
-                  (error) => {
-                    console.error(error);
-                  }
-                );
-              } else {
-                localStorage.setItem("authorization", false);
-              }
-            });
+          console.log("获取用户全部歌单", this.uid);
+          // 获取用户全部歌单
+          this.songList = [];
+          axios.get(`api/user/playlist?uid=${this.uid}`).then((response) => {
+            console.log(response);
+            console.log(response.data.playlist);
+            for (const item of response.data.playlist) {
+              this.songList.push({
+                id: item.id,
+                imgSrc: item.coverImgUrl,
+                listName: item.name,
+                trackCount: item.trackCount,
+                link: `myMusic/playList?id=${item.id}`,
+              });
+            }
+            console.log(this.songList);
+          });
         } else if (name === "mplayList") {
           console.log(to, from);
           axios
@@ -302,11 +270,13 @@ export default {
       await axios
         .post(`api/login/cellphone?phone=${username}&password=${userpwd}`)
         .then((response) => {
-          console.log(response);
+          console.log("请求登录：", response);
           if (response.data.code == 200) {
             this.imgSrc = response.data.profile.avatarUrl;
             isLogin = true;
-            this.$router.push("/myMusic");
+            this.uid = response.data.account.id;
+            this.setLikeList();
+            this.clickMask();
           }
         });
       return isLogin;
@@ -373,6 +343,20 @@ export default {
           break;
       }
     },
+    // 获取我喜欢歌单
+    async setLikeList() {
+      console.log("获取我喜欢歌单");
+      this.likeList = [];
+      await axios.get(`api/likelist?uid=${this.uid}`).then(
+        (response) => {
+          console.log(response);
+          this.likeList = response.data.ids;
+        },
+        (error) => {
+          console.error(error);
+        }
+      );
+    },
     // 收藏、取消收藏
     switchCollect(isLike, id) {
       console.log(isLike ? "取消喜欢" : "喜欢");
@@ -410,6 +394,24 @@ export default {
       console.log("点击蒙版");
       this.$router.push("/myMusic");
     },
+  },
+  async created() {
+    // 判断登录状态
+    await axios
+      .get(`api/login/status?time=${Date.parse(new Date())}`)
+      .then((response) => {
+        console.log("判断登录状态：", response);
+        if (response.data.data.account && response.data.data.profile) {
+          this.imgSrc = response.data.data.profile.avatarUrl;
+          this.uid = response.data.data.profile.userId;
+
+          console.log(this.uid);
+          this.setLikeList();
+          localStorage.setItem("authorization", true);
+        } else {
+          localStorage.setItem("authorization", false);
+        }
+      });
   },
   mounted() {
     this.audio = this.$refs.audio;
