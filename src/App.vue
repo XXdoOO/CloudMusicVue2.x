@@ -40,80 +40,18 @@
         :cutSong="cutSong"
       ></router-view>
 
-      <router-view name="PlayList2" :songList="songList"> </router-view>
+      <router-view name="currentMusicList2" :songList="songList"> </router-view>
 
       <Lyric :audio="audio" :lyric="currentMusic.lyric"></Lyric>
     </div>
 
-    <div class="footer">
-      <div class="bars">
-        <ControlBar
-          :audio="audio"
-          :musicList="playList"
-          :currentIndex="currentIndex"
-          :mode="mode.name"
-          :cutSong="cutSong2"
-        ></ControlBar>
-
-        <ProgressBar :audio="audio" :currentMusic="currentMusic"></ProgressBar>
-      </div>
-
-      <div class="icons">
-        <Icon
-          :customStyles="{
-            ...{
-              background: `url(${ICON}) 0 -205px`,
-              width: '26px',
-              height: '25px',
-            },
-            ...mode.style,
-          }"
-          :title="mode.title"
-          @click.native.stop="switchMode()"
-        />
-
-        <Icon
-          v-show="!isLike"
-          :customStyles="{
-            background: `url(${ICON}) 0 -96px`,
-            width: '23px',
-            height: '21px',
-          }"
-          title="收藏"
-          @click.native.stop="switchCollect(isLike, playList[currentIndex].id)"
-        />
-
-        <Icon
-          v-show="isLike"
-          :customStyles="{
-            background: `url(${ICON}) -30px -96px`,
-            width: '23px',
-            height: '21px',
-          }"
-          title="取消收藏"
-          @click.native.stop="switchCollect(isLike, playList[currentIndex].id)"
-        />
-
-        <Icon
-          :customStyles="{
-            background: `url(${ICON}) 0 -120px`,
-            width: '22px',
-            height: '21px',
-          }"
-        />
-        <Icon
-          :customStyles="{
-            background: `url(${ICON}) 0 -399px`,
-            width: '24px',
-            height: '24px',
-          }"
-        />
-      </div>
-
-      <div>
-        <Volume />
-      </div>
-    </div>
+    <Footer
+      :audio="audio"
+      :currentIndex="currentIndex"
+      :isLike="isLike"
+      :currentMusicList="currentMusicList"
+      :switchCollect="switchCollect"
+    />
   </div>
 </template>
 
@@ -122,10 +60,7 @@ import axios from "axios";
 import PersonalInfo from "./components/PersonalInfo.vue";
 import SearchInput from "./components/SearchInput.vue";
 import Lyric from "./components/Lyric.vue";
-import ControlBar from "./components/ControlBar.vue";
-import ProgressBar from "./components/ProgressBar.vue";
-import Icon from "./components/Icon.vue";
-import Volume from "./components/Volume.vue";
+import Footer from "./components/pages/Footer.vue";
 
 axios.defaults.withCredentials = true;
 
@@ -135,31 +70,22 @@ export default {
     PersonalInfo,
     SearchInput,
     Lyric,
-    ProgressBar,
-    ControlBar,
-    Icon,
-    Volume,
+    Footer,
   },
   data() {
     return {
       audio: null,
-      ICON: require("./assets/images/player.png"),
-      // 喜欢列表的音乐id
+      // 喜欢列表的音乐id列表
       likeList: [],
-
-      // 当前播放音乐的歌单及下标
-      playList: [],
-      currentIndex: 0,
 
       // 当前查看的歌单
       musicList: [],
 
-      // 播放模式
-      mode: {
-        name: "order",
-        style: {},
-        title: "顺序播放",
-      },
+      // 当前播放的歌单
+      currentMusicList: [],
+
+      // 当前播放歌曲的下标
+      currentIndex: null,
 
       // 当前播放歌曲是否为用户喜欢的歌曲
       isLike: false,
@@ -196,44 +122,50 @@ export default {
           this.activeClass(2);
         }
 
-        if (name === "top") {
-          console.log("发送top请求");
-        } else if (name === "myMusic") {
-          console.log("获取用户全部歌单", this.uid);
-          // 获取用户全部歌单
-          this.songList = [];
-          axios.get(`api/user/playlist?uid=${this.uid}`).then((response) => {
-            console.log(response);
-            console.log(response.data.playlist);
-            for (const item of response.data.playlist) {
-              this.songList.push({
-                id: item.id,
-                imgSrc: item.coverImgUrl,
-                listName: item.name,
-                trackCount: item.trackCount,
-                link: `myMusic/playList?id=${item.id}`,
+        switch (name) {
+          case "top":
+            console.log("发送top请求");
+            break;
+          case "myMusic":
+            // 获取用户全部歌单
+            console.log("获取用户全部歌单", this.uid);
+            this.songList = [];
+            axios
+              .get(`api/user/currentMusicList?uid=${this.uid}`)
+              .then((response) => {
+                console.log(response);
+                console.log(response.data.currentMusicList);
+                for (const item of response.data.currentMusicList) {
+                  this.songList.push({
+                    id: item.id,
+                    imgSrc: item.coverImgUrl,
+                    listName: item.name,
+                    trackCount: item.trackCount,
+                    link: `myMusic/currentMusicList?id=${item.id}`,
+                  });
+                }
+                console.log(this.songList);
               });
-            }
-            console.log(this.songList);
-          });
-        } else if (name === "mplayList") {
-          console.log(to, from);
-          axios
-            .get(`api/playlist/track/all?id=${to.query.id}`)
-            .then((response) => {
-              console.log(response);
-              this.musicList = [];
-              console.log(response.data.songs);
-              for (const item of response.data.songs) {
-                this.musicList.push({
-                  id: item.id,
-                  name: item.name,
-                  singer: item.ar,
-                  duration: item.dt,
-                  src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
-                });
-              }
-            });
+            break;
+          case "mcurrentMusicList":
+            console.log(to, from);
+            axios
+              .get(`api/currentMusicList/track/all?id=${to.query.id}`)
+              .then((response) => {
+                console.log(response);
+                this.musicList = [];
+                console.log(response.data.songs);
+                for (const item of response.data.songs) {
+                  this.musicList.push({
+                    id: item.id,
+                    name: item.name,
+                    singer: item.ar,
+                    duration: item.dt,
+                    src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
+                  });
+                }
+              });
+            break;
         }
       },
     },
@@ -242,7 +174,6 @@ export default {
     // 搜索
     searchKeywords(keywords) {
       this.$router.push(`/search?keywords=${keywords}`);
-      console.log(keywords);
       axios.get(`api/search?keywords=${keywords}`).then(
         (resp) => {
           this.musicList = [];
@@ -281,20 +212,17 @@ export default {
         });
       return isLogin;
     },
-    cutSong(playList, currentIndex) {
+    cutSong(currentMusicList, currentIndex) {
       // 切歌判断当前歌曲是否为用户喜欢的歌曲
-      this.isLike = this.isLikeSong(playList[currentIndex].id);
+      console.log(currentMusicList, currentIndex);
+      this.isLike = this.isLikeSong(currentMusicList[currentIndex].id);
 
-      this.playList = playList;
+      this.currentMusicList = currentMusicList;
       this.currentIndex = currentIndex;
 
-      let item = this.playList[this.currentIndex];
-      this.currentMusic = {
-        name: item.name,
-        singer: item.singer,
-        duration: item.duration,
-      };
-
+      let item = this.currentMusicList[this.currentIndex];
+      this.currentMusic = item;
+      
       axios.get(`api/lyric?id=${item.id}`).then(
         (response) => {
           this.$set(this.currentMusic, "lyric", response.data.lrc.lyric);
@@ -304,44 +232,11 @@ export default {
         }
       );
     },
-    cutSong2(currentIndex) {
-      this.currentIndex = currentIndex;
-      this.isLike = this.isLikeSong(this.playList[currentIndex].id);
-    },
     activeClass(index) {
       for (let i = 0; i < this.active.length; i++) {
         this.$set(this.active, i, "");
       }
       this.$set(this.active, index, "active");
-    },
-    // 切换模式
-    switchMode() {
-      console.log(this.mode.name);
-      switch (this.mode.name) {
-        case "random":
-          this.mode.name = "order";
-          this.mode.title = "顺序播放";
-          this.mode.style = {
-            "background-position": "0 -260px",
-            width: "23px",
-            height: "20px",
-          };
-          break;
-        case "cycle":
-          this.mode.name = "random";
-          this.mode.title = "随机播放";
-          this.mode.style = {
-            "background-position": "0 -74px",
-            width: "25px",
-            height: "19px",
-          };
-          break;
-        default:
-          this.mode.name = "cycle";
-          this.mode.title = "单曲循环";
-          this.mode.style = { "background-position": "0 -232px" };
-          break;
-      }
     },
     // 获取我喜欢歌单
     async setLikeList() {
@@ -417,8 +312,8 @@ export default {
     this.audio = this.$refs.audio;
 
     this.audio.addEventListener("ended", () => {
-      console.log("切歌", this.playList);
-      let item = this.playList[this.currentIndex];
+      console.log("切歌", this.currentMusicList);
+      let item = this.currentMusicList[this.currentIndex];
       this.currentMusic = {
         name: item.name,
         singer: item.singer,
@@ -523,37 +418,6 @@ body {
 
       > div:last-child {
         float: right;
-      }
-    }
-
-    > div.footer {
-      position: fixed;
-      height: 80px;
-      width: 80%;
-      padding: 10px 10%;
-      min-width: 1000px;
-      background: blue;
-      bottom: 0px;
-      display: flex;
-      justify-content: space-between;
-
-      > div.bars {
-        width: calc(100% - 500px);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      > div.icons {
-        margin-left: 50px;
-        width: 150px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        > div {
-          display: inline-block;
-        }
       }
     }
   }
