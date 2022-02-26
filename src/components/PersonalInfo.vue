@@ -2,13 +2,18 @@
   <div class="root">
     <div class="face">
       <img v-show="imgSrc" :src="imgSrc" alt="头像" title="点击修改头像" />
-      <a v-show="!imgSrc" title="点击登录/注册" @click.stop="clickLoginRegister()">登录/注册</a>
+      <a
+        v-show="!imgSrc"
+        title="点击登录/注册"
+        @click.stop="clickLoginRegister()"
+        >登录/注册</a
+      >
       <router-link to="/"></router-link>
     </div>
     <div class="menu" v-show="imgSrc">
       <ul>
         <li v-for="item in menuList" :key="item.src">
-          <a :href="item.src">{{ item.name }}</a>
+          <router-link :to="item.src">{{ item.name }}</router-link>
         </li>
       </ul>
     </div>
@@ -39,7 +44,7 @@ export default {
       default() {
         return [
           { name: "我的主页", src: "s" },
-          { name: "退出登录", src: "api/logout" },
+          { name: "退出登录", src: "/logout" },
         ];
       },
     },

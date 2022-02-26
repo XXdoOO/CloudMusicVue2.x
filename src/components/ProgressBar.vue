@@ -168,7 +168,7 @@ export default {
 
 div#base {
   height: 40px;
-  width: 520px;
+  width: 100%;
   padding: 10px;
 
   > div:nth-child(1) {

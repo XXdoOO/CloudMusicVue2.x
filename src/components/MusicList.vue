@@ -12,8 +12,9 @@
         <div>时长</div>
       </li>
     </ul>
-    <ul>
+    <ul :style="ulStyle">
       <li
+        class="line"
         v-for="(ml, index) in musicList2"
         :key="ml.id"
         :class="ml.divClass"
@@ -66,6 +67,7 @@ export default {
         return {};
       },
     },
+    ulStyle: Object,
     musicList: {
       type: Array,
       default() {
@@ -213,9 +215,6 @@ export default {
       }
     },
   },
-  destroyed() {
-    console.log("ssssss");
-  },
 };
 </script>
 
@@ -257,6 +256,8 @@ div#base {
     min-width: 600px;
     > li {
       height: calc(100% / 9);
+      max-height: 60px;
+      min-height: 50px;
       border-bottom: rgba(255, 255, 255, 0.65) 2px solid;
       box-sizing: border-box;
       list-style: none;
@@ -378,6 +379,8 @@ div#base {
 
   > ul:nth-child(1) {
     height: 10%;
+    max-height: 60px;
+    min-height: 50px;
 
     li {
       height: 100%;
