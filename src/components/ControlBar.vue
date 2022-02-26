@@ -24,18 +24,18 @@ export default {
         return {};
       },
     },
-    musicList: {
+    currentMusicList: {
       type: Array,
       default() {
-        let musicList = [
+        let currentMusicList = [
           { name: "", singer: "", duration: 0, lyric: "" },
           { name: "", singer: "", duration: 0, lyric: "" },
         ];
         console.error(
-          "请传入musicList当前播放的歌曲所在的对象数组！",
-          musicList
+          "请传入currentMusicList当前播放的歌曲所在的对象数组！",
+          currentMusicList
         );
-        return musicList;
+        return currentMusicList;
       },
     },
     currentIndex: {
@@ -43,14 +43,6 @@ export default {
       default() {
         console.error("请传入currentIndex当前播放的歌曲下标");
         return 0;
-      },
-    },
-    cutSong: {
-      type: Function,
-      default() {
-        console.error(
-          "请传入cutSong(currentIndex)函数接收当前播放歌曲下标！！"
-        );
       },
     },
   },
@@ -109,16 +101,15 @@ export default {
         }
 
         // 改变当前播放歌曲下标
-        for (const index in this.musicList) {
+        for (const index in this.currentMusicList) {
           if (
             this.playHistory2[this.playHistory2.length - 1] ==
-            this.musicList[index]
+            this.currentMusicList[index]
           ) {
             this.currentIndex2 = index;
             break;
           }
         }
-        console.log(this.currentIndex2);
       } else {
         alert("请选择播放的歌曲！");
       }
@@ -128,23 +119,22 @@ export default {
       if (this.audio.src) {
         // 判断是否为歌单最后一曲
         let index = 0;
-        if (this.audio.src !== this.musicList[this.musicList.length - 1]) {
+        if (this.audio.src !== this.currentMusicList[this.currentMusicList.length - 1]) {
           // 顺序播放
           if (mode === "order") {
             console.log(this.currentIndex2);
             index = this.currentIndex2 + 1;
           } else if (mode === "random") {
             // 随机播放
-            index = Math.floor(Math.random() * (this.musicList.length - 1));
+            index = Math.floor(Math.random() * (this.currentMusicList.length - 1));
             console.log(`当前随机歌曲下标:${index}`);
           } else if (mode === "cycle") {
             // 单曲循环
             index = this.currentIndex2;
           }
         }
-        this.audio.src = this.musicList[index].src;
+        this.audio.src = this.currentMusicList[index].src;
         this.currentIndex2 = index;
-        this.cutSong(index);
       } else {
         alert("请选择播放的歌曲！");
       }
