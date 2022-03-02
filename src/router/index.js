@@ -51,14 +51,20 @@ const router = new VueRouter({
     {
       path:"/logout",
       name:"logout",
-      redirect: "/"
+    },
+    {
+      path:"/song/download",
+      name: "downloadSong",
+      beforeEnter(to, from) {
+        console.log(to, from);
+      },
     }
   ]
 });
 
 // 守卫当前路由是否需要授权
 router.beforeEach((to, from, next) => {
-  console.log(to, from);
+  console.log(to, from, localStorage.getItem("authorization"));
   if (to.meta.requireAuth) {
     if (localStorage.getItem("authorization")) {
       next();

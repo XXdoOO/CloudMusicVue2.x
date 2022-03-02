@@ -45,6 +45,7 @@ export default {
         return 0;
       },
     },
+    cutSong: Function,
   },
   data() {
     return {
@@ -63,15 +64,20 @@ export default {
         this.playClass2 = "";
       });
 
+      // 新曲，加入播放历史
       newVal.addEventListener("canplay", () => {
-        this.playHistory2.push(this.audio.src);
+        if (newVal.src !== this.currentMusicList[this.currentIndex2]) {
+          this.playHistory2.push(this.audio.src);
+        }
       });
 
+      // 结束
       newVal.addEventListener("ended", () => {
         this.nextMusic(this.mode);
       });
     },
-    currentIndex2(newVal) {
+    // 歌单改变
+    currentIndex(newVal) {
       this.currentIndex2 = newVal;
     },
   },
@@ -93,6 +99,9 @@ export default {
       if (this.audio.src) {
         console.log(this.playHistory2);
 
+        this.cutSong(this.currentIndex2);
+
+        // 播放历史大于1
         if (this.playHistory2.length > 1) {
           this.playHistory2.pop();
           this.audio.src = this.playHistory2[this.playHistory2.length - 1].src;
@@ -119,14 +128,21 @@ export default {
       if (this.audio.src) {
         // 判断是否为歌单最后一曲
         let index = 0;
-        if (this.audio.src !== this.currentMusicList[this.currentMusicList.length - 1]) {
+        if (
+          this.audio.src !==
+          this.currentMusicList[this.currentMusicList.length - 1]
+        ) {
           // 顺序播放
           if (mode === "order") {
             console.log(this.currentIndex2);
             index = this.currentIndex2 + 1;
           } else if (mode === "random") {
-            // 随机播放
-            index = Math.floor(Math.random() * (this.currentMusicList.length - 1));
+            // 随机一首不同于现在播放的歌曲播放
+            do {
+              index = Math.floor(
+                Math.random() * (this.currentMusicList.length - 1)
+              );
+            } while (index != this.currentIndex2);
             console.log(`当前随机歌曲下标:${index}`);
           } else if (mode === "cycle") {
             // 单曲循环
@@ -135,6 +151,7 @@ export default {
         }
         this.audio.src = this.currentMusicList[index].src;
         this.currentIndex2 = index;
+        this.cutSong(this.currentIndex2);
       } else {
         alert("请选择播放的歌曲！");
       }
@@ -153,8 +170,8 @@ export default {
 
 div#base {
   display: flex;
-  width: 120px;
-  height: 40px;
+  min-width: 120px;
+  min-height: 40px;
   background: transparent;
   align-items: center;
   justify-content: space-between;

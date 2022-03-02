@@ -108,8 +108,6 @@ export default {
       // 初始化组件
       this.init();
 
-      console.log("当前播放的歌曲改变：", newVal);
-
       let lyricList = newVal.split("\n");
 
       console.log("初始歌词：", lyricList);
