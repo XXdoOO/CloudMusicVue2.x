@@ -10,7 +10,7 @@ export default {
   props: {
     customStyles: {
       type: Object,
-      default() { 
+      default() {
         return {};
       },
     },

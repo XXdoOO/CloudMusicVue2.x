@@ -40,9 +40,9 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## 专辑
 
-- [ ] 专辑图片可自定义
-- [ ] 专辑样式可自定义
-- [ ] 播放暂停会有响应动画（专辑旋转…）
+- [x] 专辑图片可自定义
+- [x] 专辑样式可自定义
+- [x] 播放暂停会有响应动画（专辑旋转…）
 
 ![image-20220224163740114](image-20220224163740114.png)
 
@@ -54,4 +54,5 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ![image-20220224164908958](image-20220224164908958.png)
 
-​	
+# 	BUG
+

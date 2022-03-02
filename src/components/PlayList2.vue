@@ -26,8 +26,6 @@ div.playList {
   height: 100%;
   display: flex;
   flex-wrap: wrap;
-  margin-top: 50px;
-  margin-bottom: 100px;
 
   > div {
     flex-basis: 33%;

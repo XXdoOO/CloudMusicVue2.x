@@ -61,11 +61,7 @@ export default {
   name: "MusicList",
   props: {
     audio: {
-      // type: Object,
-      default() {
-        console.error("请传入audio对象！");
-        return {};
-      },
+      require: true,
     },
     ulStyle: Object,
     musicList: {
@@ -186,8 +182,6 @@ export default {
       let isIn = false;
       let currentIndex = -1;
 
-      console.log(this.musicList2, this.audio.src);
-
       for (const index in this.musicList2) {
         if (this.musicList2[index].src === this.audio.src) {
           isIn = true;
@@ -247,13 +241,13 @@ li.divClass {
 
 div#base {
   width: 700px;
+  min-width: 600px;
   height: 500px;
   background: @backgroundClor;
   position: relative;
   color: white;
 
   > ul {
-    min-width: 600px;
     > li {
       height: calc(100% / 9);
       max-height: 60px;

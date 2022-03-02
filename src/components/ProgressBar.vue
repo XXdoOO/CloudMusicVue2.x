@@ -27,14 +27,11 @@ export default {
   name: "ProgressBar",
   props: {
     audio: {
-      // type: Object,
-      default() {
-        console.error("请传入audio对象！");
-        return {};
-      },
+      require: true,
     },
     currentMusic: {
       type: Object,
+      require: true,
       default() {
         let currentMusic = {
           name: "未播放",
