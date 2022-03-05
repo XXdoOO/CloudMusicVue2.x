@@ -1,7 +1,7 @@
 /**
  * 手机或邮箱登录
- * @param {选项，phone或email} option 
- * @param {密码} password 
+ * @param {string} 选项，phone或email 
+ * @param {string} 密码 
  * @returns 
  */
 function loginURL(option, password) {
@@ -16,7 +16,7 @@ const STATUS_URL = `/login/status?time=${Date.parse(new Date())}`;
 
 /**
  * 搜索
- * @param {关键词} keywords 
+ * @param {string} 关键词 
  * @returns 
  */
 function searchURL(keywords){
@@ -25,7 +25,7 @@ function searchURL(keywords){
 
 /**
  * 歌曲歌词
- * @param {歌曲id} id 
+ * @param {number} 歌曲id 
  * @returns 
  */
 function lyricURL(id){
@@ -34,8 +34,8 @@ function lyricURL(id){
 
 /**
  * 喜欢音乐
- * @param {歌曲id} id 
- * @param {true为喜欢，false为取消喜欢} like 
+ * @param {number} 歌曲id 
+ * @param {boolean} true为喜欢，false为取消喜欢 
  * @returns 
  */
 function likeURL(id, like){
@@ -45,7 +45,7 @@ function likeURL(id, like){
 
 /**
  * 下载歌曲
- * @param {歌曲id} id 
+ * @param {number} 歌曲id
  * @returns 
  */
 function downloadURL(id) {
@@ -54,7 +54,7 @@ function downloadURL(id) {
 
 /**
  * 歌单所有歌曲
- * @param {歌单id} id 
+ * @param {number} 歌曲id
  * @returns 
  */
 function allSongURL(id) {
@@ -63,7 +63,7 @@ function allSongURL(id) {
 
 /**
  * 歌曲url
- * @param {歌曲id} id 
+ * @param {number} 歌曲id
  * @returns 
  */
 function songURL(id) {
@@ -72,7 +72,7 @@ function songURL(id) {
 
 /**
  * 用户所有歌单
- * @param {用户uid} uid 
+ * @param {number} 用户uid
  * @returns 
  */
 function allPlaylistURL(uid) {
