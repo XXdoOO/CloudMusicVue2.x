@@ -51,7 +51,6 @@ export default {
       immediate: true,
       handler(to) {
         let path = to.fullPath.split("/")[1];
-        console.log(path);
 
         if (path === "" || path === "index") {
           this.activeClass(0);

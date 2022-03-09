@@ -8,9 +8,7 @@
     />
     <div class="roundBox" :class="{ active: active, pause: pause }">
       <div class="roundRecord">
-        <div class="roundImg">
-          <img :src="src" alt="专辑" />
-        </div>
+        <img :src="src" alt="专辑" />
       </div>
     </div>
   </div>
@@ -23,7 +21,10 @@ export default {
     audio: {
       require: true,
     },
-    src: String,
+    src: {
+      type: String,
+      default: require("./images/logo.png"),
+    },
   },
   data() {
     return {
@@ -36,7 +37,7 @@ export default {
 
   watch: {
     audio(newVal) {
-      console.log(newVal);
+      console.log("AlbumCover接收到音频DOM:", newVal);
       newVal.addEventListener("pause", () => {
         console.log("音频暂停");
         this.baractive = false;
@@ -110,7 +111,6 @@ div.pause {
     .roundRecord {
       width: 90%;
       height: 90%;
-      background: rgb(15, 15, 15);
       border-radius: 50%;
       position: absolute;
       left: 0;
@@ -118,23 +118,19 @@ div.pause {
       top: 0;
       bottom: 0;
       margin: auto;
+      background: url(./images/disc.png);
+      background-size: 100%;
 
-      .roundImg {
+      img {
         width: 73%;
         height: 73%;
         border-radius: 50%;
-        background: whitesmoke;
-        position: relative;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-
-        img {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          border-radius: 50%;
-        }
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
       }
     }
   }

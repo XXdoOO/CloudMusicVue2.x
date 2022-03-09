@@ -39,7 +39,6 @@ export default {
           currentTime: 0,
           duration: 0,
         };
-        console.error("传入currentMusic对象！", currentMusic);
         return currentMusic;
       },
     },
@@ -51,7 +50,7 @@ export default {
   },
   watch: {
     audio(newVal) {
-      console.log(newVal);
+      console.log("ProgressBar接收到音频DOM:", newVal);
       newVal.addEventListener("timeupdate", this.timeupdate);
     },
   },

@@ -5,14 +5,17 @@
  * @returns 
  */
 function loginURL(option, password) {
-  return `/login/${option}?${option}=${option}&password=${password}?time=${Date.parse(new Date())}`;
+  return `/login/${option}?${option}=${option}&password=${password}?time=${new Date().getTime()}`;
 }
 
 // 退出登录
-const LOGOUT_URL = `/logout?time=${Date.parse(new Date())}`;
+const LOGOUT_URL = `/logout?time=${new Date().getTime()}`;
 
 // 登录状态
-const STATUS_URL = `/login/status?time=${Date.parse(new Date())}`;
+const STATUS_URL = `/login/status?time=${new Date().getTime()}`;
+
+// 刷新登录状态
+const REFRESH_STATUS_URL = `/login/refresh?time=${new Date().getTime()}`;
 
 /**
  * 搜索
@@ -79,4 +82,4 @@ function allPlaylistURL(uid) {
   return `/user/playlist?uid=${uid}&time=${Date.parse(new Date())}`;
 }
 
-export default { loginURL, LOGOUT_URL, STATUS_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };
+export default { loginURL, LOGOUT_URL, STATUS_URL, REFRESH_STATUS_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };

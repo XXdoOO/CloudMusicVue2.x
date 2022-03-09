@@ -135,19 +135,16 @@ export default {
     };
   },
   watch: {
+    // 播放的歌曲改变
     currentIndex(newVal) {
       this.currentIndex2 = newVal;
+      console.log("播放的歌单发生改变", this.currentMusicList[this.currentIndex]);
+      this.isLike = this.isLikeSong(this.currentMusicList[this.currentIndex].id);
     },
     // 监听uid
-    uid(newVal) {
+    uid() {
       // 初始化我喜欢歌单
-      console.log("ssssssssssss", newVal);
       this.setLikeList();
-    },
-    // 用户播放的歌单改变
-    currentMusicList(newVal) {
-      console.log(newVal[this.currentIndex]);
-      this.isLike = this.isLikeSong(newVal[this.currentIndex].id);
     },
   },
   methods: {
@@ -236,13 +233,13 @@ export default {
         }
       );
     },
-    // 获取我喜欢歌单
+    // 设置我喜欢歌单
     async setLikeList() {
       if (!this.uid) {
         return;
       }
       this.likeList = [];
-      await axios.get(`api/likelist?uid=${this.uid}`).then(
+      await axios.get(`api/likelist?uid=${this.uid}&time=${new Date().getTime()}`).then(
         (response) => {
           console.log("获取我喜欢歌单", response);
           this.likeList = response.data.ids;
@@ -256,7 +253,6 @@ export default {
     cutSong2(currentIndex) {
       this.currentIndex2 = currentIndex;
       this.cutSong(this.currentIndex2);
-      this.isLike = this.isLikeSong(this.currentMusicList[currentIndex].id);
     },
   },
 };
@@ -288,7 +284,7 @@ div.footer {
     }
 
     > div.icons {
-      width: 200px;
+      width: 400px;
       display: flex;
       align-items: center;
       justify-content: space-between;

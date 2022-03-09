@@ -14,13 +14,13 @@
         name="MusicList"
         :audio="audio"
         :musicList="musicList"
-        :cutSong="cutSong"
+        :cutSong="cutSongList"
       ></router-view>
 
       <router-view name="PlayList2" :songList="songList"> </router-view>
 
       <div class="contentRight">
-        <AlbumCover :audio="audio" :src="currentMusic.album"/>
+        <AlbumCover :audio="audio" :src="currentMusic.album" />
         <Lyric :audio="audio" :lyric="currentMusic.lyric"></Lyric>
       </div>
     </div>
@@ -30,7 +30,7 @@
       :currentIndex="currentIndex"
       :currentMusicList="currentMusicList"
       :uid="uid"
-      :cutSong="cutSong2"
+      :cutSong="cutSong"
     />
   </div>
 </template>
@@ -86,14 +86,9 @@ export default {
     $route: {
       deep: true,
       immediate: true,
-      handler: function (to, from) {
-        // console.log(to, from);
-
+      handler: async function (to) {
         let name = to.name;
-        let path = to.fullPath.split("/")[1];
-        console.log(path, name);
-
-        this.status();
+        console.log("当前路由：", name);
 
         switch (name) {
           case "top":
@@ -101,6 +96,7 @@ export default {
             break;
           case "myMusic":
             // 获取用户全部歌单
+            await this.status();
             console.log("获取用户全部歌单", this.uid);
             this.songList = [];
             axios
@@ -121,13 +117,11 @@ export default {
               });
             break;
           case "mplayList":
-            console.log(to, from);
+            await this.status();
             axios
               .get("api" + this.GLOBAL.allSongURL(to.query.id))
               .then((response) => {
-                console.log(response);
                 this.musicList = [];
-                console.log(response.data.songs);
                 for (const item of response.data.songs) {
                   this.musicList.push({
                     id: item.id,
@@ -141,11 +135,13 @@ export default {
               });
             break;
           case "logout":
-            axios.get("api" + this.GLOBAL.LOGOUT_URL).then((response) => {
+            await axios.get("api" + this.GLOBAL.LOGOUT_URL).then((response) => {
               console.log(response);
               this.$router.push("/");
-              this.status();
-              alert("退出登录成功！");
+              this.imgSrc = null;
+              this.uid = null;
+              localStorage.clear("authorization");
+              console.log("退出登录成功！");
             });
             break;
         }
@@ -185,30 +181,29 @@ export default {
         .then((response) => {
           console.log("请求登录：", response);
           if (response.data.code == 200) {
-            this.imgSrc = response.data.profile.avatarUrl;
             isLogin = true;
-            this.uid = response.data.account.id;
-            localStorage.setItem("authorization", true);
+            this.status();
             this.clickMask();
           }
         });
       return isLogin;
     },
-    // 音乐列表切歌
-    cutSong(currentMusicList, currentIndex) {
-      console.log(currentMusicList, currentIndex);
+    // 音乐列表切换歌单
+    cutSongList(currentMusicList, currentIndex) {
+      console.log("音乐列表切换歌单", currentMusicList, currentIndex);
 
       this.currentMusicList = currentMusicList;
       this.currentIndex = currentIndex;
 
-      let item = this.currentMusicList[this.currentIndex];
-      this.currentMusic = item;
-
+      this.currentMusic = this.currentMusicList[this.currentIndex];
       this.updateLyric();
     },
-    // 控制栏切歌
-    cutSong2(currentIndex) {
+    // 控制栏切换歌曲
+    cutSong(currentIndex) {
+      console.log("控制栏切换歌曲", currentIndex);
       this.currentIndex = currentIndex;
+
+      this.currentMusic = this.currentMusicList[this.currentIndex];
       this.updateLyric();
     },
     // 点击登录注册
@@ -216,27 +211,45 @@ export default {
       console.log("点击登录注册");
       this.$router.push("/login");
     },
-    // 点击蒙版
+    // 点击蒙版，返回上一级
     clickMask() {
       console.log("点击蒙版，返回上一级");
       this.$router.go(-1);
     },
     // 判断登录状态
     async status() {
-      await axios.post("api" + this.GLOBAL.STATUS_URL).then((response) => {
-        console.log("判断登录状态：", response);
-        if (response.data.data.account && response.data.data.profile) {
-          this.imgSrc = response.data.data.profile.avatarUrl;
-          this.uid = response.data.data.profile.userId;
+      let allCookies = document.cookie;
+      console.log(allCookies);
 
-          console.log(this.uid);
-          localStorage.setItem("authorization", true);
-        } else {
-          this.imgSrc = null;
-          this.uid = null;
-          localStorage.clear("authorization");
+      await axios.post("api" + this.GLOBAL.REFRESH_STATUS_URL).then(
+        async (response) => {
+          console.log("刷新状态成功", response);
+
+          await axios.post("api" + this.GLOBAL.STATUS_URL).then(
+            (response) => {
+              console.log("判断登录状态：", response);
+              if (response.data.data.account && response.data.data.profile) {
+                this.imgSrc = response.data.data.profile.avatarUrl;
+                this.uid = response.data.data.profile.userId;
+
+                console.log("用户已登录，uid", this.uid);
+                localStorage.setItem("authorization", true);
+              } else {
+                this.imgSrc = null;
+                this.uid = null;
+                localStorage.clear("authorization");
+                console.log("用户未登录");
+              }
+            },
+            (error) => {
+              console.log(error);
+            }
+          );
+        },
+        (error) => {
+          console.log("刷新状态失败", error);
         }
-      });
+      );
     },
     // 更新歌词
     updateLyric() {
@@ -250,6 +263,9 @@ export default {
         }
       );
     },
+  },
+  created() {
+    this.status();
   },
   // 获取audio
   mounted() {
@@ -277,7 +293,7 @@ body {
 
     > div.content {
       width: 80%;
-      height: calc(100% - 270px);
+      height: calc(100% - 250px);
       min-width: 1000px;
       background: black;
       margin: 50px auto;
@@ -291,9 +307,9 @@ body {
         min-width: 400px;
         width: 40%;
 
-        > .recordplayer{
+        > .recordplayer {
           width: 200px;
-          flex-shrink:0;
+          flex-shrink: 0;
           margin-bottom: 10%;
         }
       }

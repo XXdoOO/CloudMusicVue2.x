@@ -10,6 +10,5 @@ new Vue({
   beforeCreate() {
     Vue.prototype.$bus = this;
     Vue.prototype.GLOBAL = global;
-    console.log("全局变量：", this.GLOBAL);
   },
 }).$mount('#app')

@@ -18,7 +18,6 @@ export default {
       },
     },
     audio: {
-      // type: Object,
       default() {
         console.error("请传入audio对象！");
         return {};
@@ -56,6 +55,7 @@ export default {
   },
   watch: {
     audio(newVal) {
+      console.log("ControlBar接收到音频DOM:", newVal);
       // 监听音乐播放暂停
       newVal.addEventListener("play", () => {
         this.playClass2 = "playClass";
