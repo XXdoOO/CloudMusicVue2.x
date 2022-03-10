@@ -45,14 +45,3 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 - [x] 播放暂停会有响应动画（专辑旋转…）
 
 ![image-20220224163740114](image-20220224163740114.png)
-
-## 底部栏
-
-- [ ] 默认宽度100%
-- [ ] 样式可自定义
-- [ ] 说明信息
-
-![image-20220224164908958](image-20220224164908958.png)
-
-# 	BUG
-
