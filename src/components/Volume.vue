@@ -1,5 +1,5 @@
 <template>
-  <div class="baseLine" @click="jumpDot" :style="baseStyle" ref="baseLine">
+  <div class="baseLine" @click.stop="jumpDot" :style="baseStyle" ref="baseLine">
     <div
       class="line"
       :style="{ ...{ width: lineWidth + 'px' }, ...lineStyle }"
@@ -18,9 +18,16 @@
 export default {
   name: "Volume",
   props: {
+    // 鼠标按下事件
     down: { type: Function, default() {} },
+
+    // 鼠标移动事件
     move: { type: Function, default() {} },
+
+    // 鼠标抬起事件
     up: { type: Function, default() {} },
+
+    // 鼠标点击进度条事件
     jump: { type: Function, default() {} },
     baseStyle: Object,
     lineStyle: Object,
@@ -28,9 +35,16 @@ export default {
   },
   data() {
     return {
+      // 点距离左边的距离
       dotLeft: null,
+
+      // 条
       lineWidth: 0,
+
+      // 底条
       baseLineWidth: null,
+
+      // 点半径
       dotRadius: null,
     };
   },
@@ -49,29 +63,75 @@ export default {
     },
     // 移动进度条点
     moveDot(e) {
-      this.down(e.layerX);
+      // 鼠标是否抬起，鼠标抬起需解监鼠标移动事件，先监听鼠标按下事件再监听移动事件
       let isUp = false;
-      let baseLine = this.$refs.baseLine;
-      let start = this.getLeft(baseLine);
-      let end = start + this.baseLineWidth;
-      // console.log("开始位置：", start);
-      // console.log("结束位置：", end);
+
+      // 记录原始位置
+      let leftMove = e.pageX;
+
+      // 右移能移动的距离
+      let _right = this.baseLineWidth - this.lineWidth;
+
+      // 左移能移动的距离
+      let _left = this.lineWidth;
+
+      console.log(leftMove, _right, _left);
+
+      // 当前百分比
+      let percentage = this.lineWidth / this.baseLineWidth;
+
+      this.down(percentage);
 
       window.onmousemove = (event) => {
         if (isUp) {
           return;
         }
-        this.move();
-        if (event.clientX >= start && event.clientX <= end) {
-          this.lineWidth = event.clientX - start + this.dotRadius;
-          this.dotLeft = event.clientX - start - this.dotRadius;
+
+        // 更新右边能移动的距离
+        _right = this.baseLineWidth - this.lineWidth;
+
+        // 更新左边边能移动的距离
+        _left = this.lineWidth;
+
+        // console.log(
+        //   leftMove > event.pageX ? "左移" : "右移",
+        //   "移动距离：",
+        //   event.pageX - leftMove
+        // );
+
+        // 瞬间移动距离
+        let distance = event.pageX - leftMove;
+
+        // 判断瞬间移动距离是否超出移动范围，超出则赋范围最大值
+        if (distance > _right) {
+          distance = _right;
         }
+        if (distance * -1 > _left) {
+          distance = -1 * _left;
+        }
+
+        console.log(distance, _right, _left);
+
+        //右边有空间，且右移 || 左边有空间，且左移
+        if ((_right > 0 && distance > 0) || (_left > 0 && distance < 0)) {
+          this.dotLeft += distance;
+          this.lineWidth += distance;
+
+          percentage = this.lineWidth / this.baseLineWidth;
+          console.log("移动百分比：", percentage);
+
+          this.move(percentage);
+        }
+
+        // 更新原始位置
+        leftMove = event.pageX;
       };
 
       onmouseup = () => {
-        this.up();
+        this.up(percentage);
 
         isUp = true;
+        console.log("移动完毕百分比：", percentage);
         onmousemove = null;
         onmouseup = null;
       };
@@ -79,12 +139,15 @@ export default {
     // 点击进度条
     jumpDot(e) {
       this.dotLeft = e.layerX - this.dotRadius;
-      this.lineWidth = e.layerX + this.dotRadius;
+      this.lineWidth = e.layerX;
 
-      console.log("跳转百分比：", e.layerX / this.baseLineWidth);
+      console.log(this.lineWidth);
+
+      console.log("跳转百分比：", this.lineWidth / this.baseLineWidth);
       this.jump(this.dotLeft / this.baseLineWidth);
     },
   },
+  // 获取点半径、底条的总长
   mounted() {
     let dot = this.$refs.dot;
     let baseLine = this.$refs.baseLine;
@@ -104,7 +167,6 @@ div.baseLine {
   border-radius: 2px;
   position: relative;
   height: 5px;
-  // transform: rotate(-90deg);
   display: flex;
   align-items: center;
 
