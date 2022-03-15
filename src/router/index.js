@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router"
 import LoginRegister from "../components/pages/LoginRegister.vue";
+import Home from "../components/pages/Home.vue";
 import PlayList2 from "../components/PlayList2.vue";
 import MusicList from "../components/MusicList.vue";
 
@@ -11,7 +12,7 @@ const router = new VueRouter({
     {
       path: "/",
       name: "index",
-      component: { PlayList2 },
+      components: { Home },
     },
     {
       path: "/index",
@@ -20,7 +21,7 @@ const router = new VueRouter({
     {
       path: "/top",
       name: "top",
-      component: { PlayList2 },
+      components: { PlayList2 },
     },
     {
       path: "/top/playList",

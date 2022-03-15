@@ -17,6 +17,12 @@ const STATUS_URL = `/login/status?time=${new Date().getTime()}`;
 // 刷新登录状态
 const REFRESH_STATUS_URL = `/login/refresh?time=${new Date().getTime()}`;
 
+// 精品歌单
+const RECOMMEND_URL = `/top/playlist/highquality`;
+
+// 排行榜
+const TOP_URL = `/toplist`;
+
 /**
  * 搜索
  * @param {string} 关键词 
@@ -82,4 +88,5 @@ function allPlaylistURL(uid) {
   return `/user/playlist?uid=${uid}&time=${Date.parse(new Date())}`;
 }
 
-export default { loginURL, LOGOUT_URL, STATUS_URL, REFRESH_STATUS_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };
+
+export default { loginURL, LOGOUT_URL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL,TOP_URL,  searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };

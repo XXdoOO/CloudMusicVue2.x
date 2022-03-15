@@ -10,14 +10,18 @@
     <Header :imgSrc="imgSrc" :searchKeywords="searchKeywords" src="/login" />
 
     <div class="content">
+      <router-view name="Home" :songList="songList" :imgPage="4"
+        ><div style="width: 2800px; height: 200px; background: red"></div
+      ></router-view>
+
       <router-view
         name="MusicList"
         :audio="audio"
         :musicList="musicList"
         :cutSong="cutSongList"
-      ></router-view>
+      />
 
-      <router-view name="PlayList2" :songList="songList"> </router-view>
+      <router-view name="PlayList2" :songList="songList" />
 
       <div class="contentRight">
         <AlbumCover :audio="audio" :src="currentMusic.album" />
@@ -38,9 +42,9 @@
 <script>
 import axios from "axios";
 import Lyric from "./components/Lyric.vue";
+import AlbumCover from "./components/AlbumCover.vue";
 import Header from "./components/pages/Header.vue";
 import Footer from "./components/pages/Footer.vue";
-import AlbumCover from "./components/AlbumCover.vue";
 
 axios.defaults.withCredentials = true;
 
@@ -48,9 +52,9 @@ export default {
   name: "App",
   components: {
     Lyric,
+    AlbumCover,
     Header,
     Footer,
-    AlbumCover,
   },
   data() {
     return {
@@ -282,7 +286,6 @@ body {
   background: black;
   margin: 0;
   padding: 0;
-
   #app {
     width: 100%;
     height: 100%;
@@ -300,13 +303,18 @@ body {
       display: flex;
       justify-content: space-between;
 
+      > .contentLeft {
+        display: flex;
+        flex-direction: column;
+      }
+
       > .contentRight {
         display: flex;
         align-items: center;
         flex-direction: column;
         min-width: 400px;
         width: 40%;
-
+        
         > .recordplayer {
           width: 200px;
           flex-shrink: 0;
@@ -316,7 +324,7 @@ body {
 
       > div:nth-child(1) {
         width: calc(100% - 500px);
-        height: 100%;
+        // height: 100%;
         float: left;
       }
     }

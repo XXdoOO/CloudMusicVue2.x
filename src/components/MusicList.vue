@@ -225,13 +225,13 @@ export default {
 
 ::-webkit-scrollbar {
   border-radius: 5px;
-  background-color: @backgroundClor;
+  background-color: silver;
   width: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: silver;
+  background-color: rgb(99, 91, 91);
 }
 
 div.divClass,
