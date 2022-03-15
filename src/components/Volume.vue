@@ -32,6 +32,9 @@ export default {
     baseStyle: Object,
     lineStyle: Object,
     dotStyle: Object,
+
+    // 进度条进度，0~1
+    percentage: Number,
   },
   data() {
     return {
@@ -48,19 +51,15 @@ export default {
       dotRadius: null,
     };
   },
+  watch: {
+    percentage(newVal) {
+      if (newVal <= 1 && newVal >= 0) {
+        this.dotLeft = this.baseLineWidth * newVal - this.dotRadius;
+        this.lineWidth = this.baseLineWidth * newVal;
+      }
+    },
+  },
   methods: {
-    // 获取元素相对于窗口横坐标
-    getLeft(e) {
-      var offset = e.offsetLeft;
-      if (e.offsetParent != null) offset += this.getLeft(e.offsetParent);
-      return offset;
-    },
-    // 获取元素相对于窗口纵坐标
-    getTop(e) {
-      var offset = e.offsetTop;
-      if (e.offsetParent != null) offset += this.getTop(e.offsetParent);
-      return offset;
-    },
     // 移动进度条点
     moveDot(e) {
       // 鼠标是否抬起，鼠标抬起需解监鼠标移动事件，先监听鼠标按下事件再监听移动事件

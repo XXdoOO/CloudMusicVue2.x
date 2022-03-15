@@ -74,6 +74,8 @@
           }"
         />
       </div>
+
+      <Volume :percentage="percentage" />
     </div>
   </div>
 </template>
@@ -83,6 +85,7 @@ import axios from "axios";
 import Icon from "../Icon.vue";
 import ControlBar from "../ControlBar.vue";
 import ProgressBar from "../ProgressBar.vue";
+import Volume from "../Volume.vue";
 
 export default {
   name: "Footer",
@@ -90,6 +93,7 @@ export default {
     Icon,
     ControlBar,
     ProgressBar,
+    Volume,
   },
   props: {
     // audio DOM元素
@@ -132,14 +136,20 @@ export default {
       isLike: false,
       // 我喜欢歌单
       likeList: [],
+      percentage: 0.5,
     };
   },
   watch: {
     // 播放的歌曲改变
     currentIndex(newVal) {
       this.currentIndex2 = newVal;
-      console.log("播放的歌单发生改变", this.currentMusicList[this.currentIndex]);
-      this.isLike = this.isLikeSong(this.currentMusicList[this.currentIndex].id);
+      console.log(
+        "播放的歌单发生改变",
+        this.currentMusicList[this.currentIndex]
+      );
+      this.isLike = this.isLikeSong(
+        this.currentMusicList[this.currentIndex].id
+      );
     },
     // 监听uid
     uid() {
@@ -239,15 +249,17 @@ export default {
         return;
       }
       this.likeList = [];
-      await axios.get(`api/likelist?uid=${this.uid}&time=${new Date().getTime()}`).then(
-        (response) => {
-          console.log("获取我喜欢歌单", response);
-          this.likeList = response.data.ids;
-        },
-        (error) => {
-          console.error(error);
-        }
-      );
+      await axios
+        .get(`api/likelist?uid=${this.uid}&time=${new Date().getTime()}`)
+        .then(
+          (response) => {
+            console.log("获取我喜欢歌单", response);
+            this.likeList = response.data.ids;
+          },
+          (error) => {
+            console.error(error);
+          }
+        );
     },
     // 切歌
     cutSong2(currentIndex) {
