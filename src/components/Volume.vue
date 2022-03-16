@@ -49,14 +49,21 @@ export default {
 
       // 点半径
       dotRadius: null,
+
+      // 进度条进度，0~1
+      percentage2: 0,
     };
   },
   watch: {
     percentage(newVal) {
       if (newVal <= 1 && newVal >= 0) {
-        this.dotLeft = this.baseLineWidth * newVal - this.dotRadius;
         this.lineWidth = this.baseLineWidth * newVal;
+        this.percentage2 = newVal;
       }
+    },
+    // 监听lineWidth，自动给dotLeft赋值
+    lineWidth(newVal) {
+      this.dotLeft = newVal - this.dotRadius;
     },
   },
   methods: {
@@ -80,6 +87,7 @@ export default {
       let percentage = this.lineWidth / this.baseLineWidth;
 
       this.down(percentage);
+      this.percentage2 = percentage;
 
       window.onmousemove = (event) => {
         if (isUp) {
@@ -113,13 +121,13 @@ export default {
 
         //右边有空间，且右移 || 左边有空间，且左移
         if ((_right > 0 && distance > 0) || (_left > 0 && distance < 0)) {
-          this.dotLeft += distance;
           this.lineWidth += distance;
 
           percentage = this.lineWidth / this.baseLineWidth;
           console.log("移动百分比：", percentage);
 
           this.move(percentage);
+          this.percentage2 = percentage;
         }
 
         // 更新原始位置
@@ -128,6 +136,7 @@ export default {
 
       onmouseup = () => {
         this.up(percentage);
+        this.percentage2 = percentage;
 
         isUp = true;
         console.log("移动完毕百分比：", percentage);
@@ -137,13 +146,14 @@ export default {
     },
     // 点击进度条
     jumpDot(e) {
-      this.dotLeft = e.layerX - this.dotRadius;
       this.lineWidth = e.layerX;
 
       console.log(this.lineWidth);
 
       console.log("跳转百分比：", this.lineWidth / this.baseLineWidth);
-      this.jump(this.dotLeft / this.baseLineWidth);
+
+      this.jump(this.lineWidth / this.baseLineWidth);
+      this.percentage2 = this.lineWidth / this.baseLineWidth;
     },
   },
   // 获取点半径、底条的总长
@@ -151,9 +161,18 @@ export default {
     let dot = this.$refs.dot;
     let baseLine = this.$refs.baseLine;
 
-    this.baseLineWidth = baseLine.offsetWidth;
     this.dotRadius = dot.offsetHeight / 2;
-    this.dotLeft = -1 * this.dotRadius;
+    this.baseLineWidth = baseLine.offsetWidth;
+
+    // 窗口发生变化，根据百分比进行变更
+    window.onresize = () => {
+      // 重新获取总长
+      this.baseLineWidth = baseLine.offsetWidth;
+
+      this.lineWidth = this.baseLineWidth * this.percentage2;
+      console.log(this.lineWidth, this.baseLineWidth, this.percentage2);
+      console.log(this.lineWidth / this.baseLineWidth);
+    };
   },
 };
 </script>
