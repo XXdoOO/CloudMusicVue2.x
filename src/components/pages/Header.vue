@@ -77,7 +77,6 @@ export default {
 div.header {
   height: 50px;
   width: 80%;
-  background: skyblue;
   padding: 10px 10%;
   display: flex;
   align-items: center;
@@ -85,6 +84,7 @@ div.header {
   position: sticky;
   top: 0;
   z-index: 998;
+  border: 1px salmon solid;
 
   > div.logo {
     width: 176px;

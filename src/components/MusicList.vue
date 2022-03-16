@@ -242,7 +242,6 @@ li.divClass {
 div#base {
   width: 700px;
   min-width: 600px;
-  height: 500px;
   background: @backgroundClor;
   position: relative;
   color: white;
@@ -293,7 +292,7 @@ div#base {
       }
 
       > div:nth-child(3) {
-        width: calc((100% - 270px) * 0.7);
+        width: calc((100% - 250px) * 0.7);
         padding-left: 30px;
         display: flex;
         align-items: center;
@@ -348,7 +347,7 @@ div#base {
       }
 
       > div:nth-child(4) {
-        width: calc((100% - 270px) * 0.3);
+        width: calc((100% - 250px) * 0.3);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

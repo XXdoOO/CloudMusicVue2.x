@@ -1,5 +1,8 @@
 <template>
-  <div id="app">
+  <div
+    id="app"
+    :style="{ background: `url(${currentMusic.album}) no-repeat fixed` }"
+  >
     <audio autoplay ref="audio"></audio>
     <router-view
       name="LoginRegister"
@@ -75,6 +78,7 @@ export default {
       currentMusic: {
         id: null,
         name: "未播放",
+        album: require("./components/images/logo.png"),
         singer: [{ name: "未播放" }],
         duration: 0,
         lyric: "未播放歌曲",
@@ -283,22 +287,44 @@ html,
 body {
   width: 100%;
   height: 100%;
-  background: black;
   margin: 0;
   padding: 0;
+
+  #app::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+  }
+
+  #app::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: inherit;
+    background-size: cover;
+    filter: blur(100px);
+    z-index: -2;
+  }
+
   #app {
     width: 100%;
     height: 100%;
-
-    > div.mask {
-      position: absolute;
-    }
+    position: relative;
+    background-size: 0 !important;
 
     > div.content {
+      z-index: 1;
       width: 80%;
       height: calc(100% - 250px);
       min-width: 1000px;
-      background: black;
       margin: 50px auto;
       display: flex;
       justify-content: space-between;
@@ -314,7 +340,7 @@ body {
         flex-direction: column;
         min-width: 400px;
         width: 40%;
-        
+
         > .recordplayer {
           width: 200px;
           flex-shrink: 0;
@@ -323,8 +349,7 @@ body {
       }
 
       > div:nth-child(1) {
-        width: calc(100% - 500px);
-        // height: 100%;
+        width: 60%;
         float: left;
       }
     }

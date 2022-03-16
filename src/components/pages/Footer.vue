@@ -275,8 +275,8 @@ div.footer {
   position: fixed;
   width: 100%;
   min-height: 80px;
-  background: blue;
   bottom: 0px;
+  border: red 1px solid;
 
   > div.footerIn {
     height: 100%;
@@ -288,11 +288,16 @@ div.footer {
     justify-content: space-between;
 
     > div.bars {
-      width: calc(100% - 500px);
+      width: 60%;
       min-width: 600px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      overflow: hidden;
+
+      > div:last-child {
+        width: calc(100% - 160px) !important;
+      }
     }
 
     > div.icons {
