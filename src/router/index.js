@@ -19,6 +19,11 @@ const router = new VueRouter({
       redirect: "/",
     },
     {
+      path: "/playList",
+      name: "playList",
+      components: { MusicList }
+    },
+    {
       path: "/top",
       name: "top",
       components: { PlayList2 },

@@ -63,7 +63,7 @@ function downloadURL(id) {
 
 /**
  * 歌单所有歌曲
- * @param {number} 歌曲id
+ * @param {number} 歌单id
  * @returns 
  */
 function allSongURL(id) {

@@ -99,8 +99,11 @@ export default {
         console.log("当前路由：", name);
 
         switch (name) {
-          case "top":
-            console.log("发送top请求");
+          case "playList":
+            this.getPlayList(to.query.id);
+            break;
+          case "tplayList":
+            this.getPlayList(to.query.id);
             break;
           case "myMusic":
             // 获取用户全部歌单
@@ -126,21 +129,7 @@ export default {
             break;
           case "mplayList":
             await this.status();
-            axios
-              .get("api" + this.GLOBAL.allSongURL(to.query.id))
-              .then((response) => {
-                this.musicList = [];
-                for (const item of response.data.songs) {
-                  this.musicList.push({
-                    id: item.id,
-                    name: item.name,
-                    singer: item.ar,
-                    duration: item.dt,
-                    src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
-                    album: item.al.picUrl,
-                  });
-                }
-              });
+            this.getPlayList(to.query.id);
             break;
           case "logout":
             await axios.get("api" + this.GLOBAL.LOGOUT_URL).then((response) => {
@@ -271,6 +260,22 @@ export default {
         }
       );
     },
+    // 更新MusicList
+    getPlayList(id) {
+      axios.get("api" + this.GLOBAL.allSongURL(id)).then((response) => {
+        this.musicList = [];
+        for (const item of response.data.songs) {
+          this.musicList.push({
+            id: item.id,
+            name: item.name,
+            singer: item.ar,
+            duration: item.dt,
+            src: `https://music.163.com/song/media/outer/url?id=${item.id}.mp3`,
+            album: item.al.picUrl,
+          });
+        }
+      });
+    },
   },
   created() {
     this.status();
@@ -344,7 +349,6 @@ body {
         > .recordplayer {
           width: 200px;
           flex-shrink: 0;
-          margin-bottom: 10%;
         }
       }
 
