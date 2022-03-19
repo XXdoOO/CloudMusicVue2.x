@@ -17,7 +17,7 @@
 
     <SearchInput :searchKeywords="searchKeywords" />
 
-    <PersonalInfo :src="src" :imgSrc="imgSrc" />
+    <PersonalInfo :src="src" :imgSrc="imgSrc" :menuList="menuList2" />
   </div>
 </template>
 
@@ -31,6 +31,7 @@ export default {
   props: {
     searchKeywords: Function,
     imgSrc: String,
+    name: String,
     src: String,
     menuList: {
       type: Array,
@@ -44,7 +45,13 @@ export default {
     },
   },
   data() {
-    return { active: ["active", "", ""] };
+    return {
+      active: ["active", "", ""],
+      menuList2: [
+        { name: "", src: "/" },
+        { name: "退出登录", src: "/logout" },
+      ],
+    };
   },
   watch: {
     $route: {
@@ -61,6 +68,12 @@ export default {
         }
       },
     },
+    name(newVal) {
+      this.menuList2 = [
+        { name: newVal, src: "/" },
+        { name: "退出登录", src: "/logout" },
+      ];
+    },
   },
   methods: {
     activeClass(index) {
@@ -75,7 +88,7 @@ export default {
 
 <style lang="less" scoped>
 div.header {
-  height: 50px;
+  height: 40px;
   width: 80%;
   padding: 10px 10%;
   display: flex;
@@ -84,7 +97,7 @@ div.header {
   position: sticky;
   top: 0;
   z-index: 998;
-  border: 1px salmon solid;
+  border-bottom: 1px salmon solid;
 
   > div.logo {
     width: 176px;
@@ -101,7 +114,7 @@ div.header {
 
   > ul.option {
     width: 300px;
-    height: 70px;
+    height: 60px;
     display: flex;
     justify-content: space-between;
     margin: 0;
@@ -115,7 +128,7 @@ div.header {
       list-style: none;
       display: inline-block;
       opacity: 0.8;
-      line-height: 70px;
+      line-height: 60px;
       width: 100px;
       text-align: center;
       background: red;

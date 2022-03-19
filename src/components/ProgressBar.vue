@@ -14,7 +14,7 @@
       >
       <span>{{ currentTime2 }} / {{ duration2 }}</span>
     </div>
-    <Volume
+    <Bar
       :baseStyle="{ width: '100%' }"
       :percentage="percentage"
       :down="down"
@@ -25,11 +25,11 @@
 </template>
 
 <script>
-import Volume from "./Volume.vue";
+import Bar from "./Bar.vue";
 
 export default {
   name: "ProgressBar",
-  components: { Volume },
+  components: { Bar },
   props: {
     audio: {
       require: true,

@@ -75,7 +75,9 @@
         />
       </div>
 
-      <Volume :percentage="percentage" />
+      <div class="volume">
+        <Volume :percentage="percentage" :audio="audio" />
+      </div>
     </div>
   </div>
 </template>
@@ -276,7 +278,7 @@ div.footer {
   width: 100%;
   min-height: 80px;
   bottom: 0px;
-  border: red 1px solid;
+  border-top: red 1px solid;
 
   > div.footerIn {
     height: 100%;
@@ -310,6 +312,11 @@ div.footer {
         display: inline-block;
         min-width: 50px;
       }
+    }
+
+    > div.volume {
+      display: flex;
+      align-items: center;
     }
   }
 }

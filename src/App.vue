@@ -10,7 +10,12 @@
       :clickMask="clickMask"
     ></router-view>
 
-    <Header :imgSrc="imgSrc" :searchKeywords="searchKeywords" src="/login" />
+    <Header
+      :imgSrc="imgSrc"
+      :name="name"
+      :searchKeywords="searchKeywords"
+      src="/login"
+    />
 
     <div class="content">
       <router-view name="Home" :songList="songList" :imgPage="4"
@@ -86,6 +91,9 @@ export default {
 
       // 头像图片
       imgSrc: "",
+
+      // 昵称
+      name: "",
       uid: null,
       songList: [],
     };
@@ -136,6 +144,7 @@ export default {
               console.log(response);
               this.$router.push("/");
               this.imgSrc = null;
+              this.name = null;
               this.uid = null;
               localStorage.clear("authorization");
               console.log("退出登录成功！");
@@ -227,12 +236,14 @@ export default {
               console.log("判断登录状态：", response);
               if (response.data.data.account && response.data.data.profile) {
                 this.imgSrc = response.data.data.profile.avatarUrl;
+                this.name = response.data.data.profile.nickname;
                 this.uid = response.data.data.profile.userId;
 
                 console.log("用户已登录，uid", this.uid);
                 localStorage.setItem("authorization", true);
               } else {
                 this.imgSrc = null;
+                this.name = null;
                 this.uid = null;
                 localStorage.clear("authorization");
                 console.log("用户未登录");
