@@ -1,11 +1,8 @@
 <template>
-  <div
-    class="container"
-    :style="{ width: `${containerW / imgPage}px`, height: `${containerH}px` }"
-  >
+  <div class="container">
     <!-- 左右箭头 -->
     <img src="./images/arrow.png" alt="" class="leftArrow" @click="prev" />
-    <img src="./images/arrow.png" alt="" class="rightArrow" @click="next" />
+
     <!-- 轮播图层 -->
     <div
       class="imgBox"
@@ -16,6 +13,9 @@
     >
       <slot class="img"> </slot>
     </div>
+
+    <img src="./images/arrow.png" alt="" class="rightArrow" @click="next" />
+
     <div class="controlDot">
       <ul>
         <li
@@ -45,7 +45,7 @@ export default {
       default: 1,
     },
 
-    //轮播间隔时间
+    //轮播间隔时间，毫秒
     time: {
       type: Number,
       default: 4000,
@@ -61,8 +61,6 @@ export default {
 
       //轮播图移动的距离
       imgtranslate: "0",
-      containerW: 0,
-      containerH: 0,
     };
   },
   methods: {
@@ -110,13 +108,6 @@ export default {
     this.timer = null;
     this.timer = setInterval(this.timeActive, this.time);
   },
-  mounted() {
-    //获取容器container的高宽，
-    this.containerW = this.$refs.imgBox.offsetWidth;
-    this.containerH = this.$refs.imgBox.offsetHeight;
-    console.log(this.$refs.imgBox.clientWidth);
-    console.log(this.$refs.imgBox.clientHeight);
-  },
 };
 </script>
 
@@ -126,11 +117,12 @@ export default {
   padding: 0;
 }
 .container {
-  background: chocolate;
   position: relative;
   margin: 0 auto;
   overflow: hidden;
   flex-shrink: 0;
+  width: 100%;
+  height: 100%;
 
   //小箭头
   img {
@@ -153,9 +145,10 @@ export default {
   }
   //中间内容层
   .imgBox {
-    // border: 2px black solid;
     position: absolute;
     transition: 0.6s;
+    width: 100%;
+    height: 100%;
 
     div {
       height: 100%;

@@ -18,9 +18,11 @@
     />
 
     <div class="content">
-      <router-view name="Home" :songList="songList" :imgPage="4"
-        ><div style="width: 2800px; height: 200px; background: red"></div
-      ></router-view>
+      <router-view name="Home" :songList="songList" :imgPage="2">
+        <div style="width: 200%; height: 100%; background: green">
+          <!-- <div style="width: 50%; background: green"></div> -->
+        </div></router-view
+      >
 
       <router-view
         name="MusicList"
@@ -313,7 +315,7 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.7);
     z-index: -1;
   }
 
