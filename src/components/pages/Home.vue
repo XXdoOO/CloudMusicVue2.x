@@ -1,9 +1,12 @@
 <template>
-  <div style="height: 100%">
-    <CarouselDiagram :imgPage="3" :time="time" style="margin-bottom: 30px"
+  <div style="height: 100%; overflow: auto">
+    <CarouselDiagram
+      :imgPage="imgPage"
+      :time="time"
+      style="margin-bottom: 30px; height: auto; aspect-ratio: 2.7"
       ><slot
     /></CarouselDiagram>
-    <PlayList2 :songList="songList" />
+    <PlayList2 :songList="songList" style="height: auto" />
   </div>
 </template>
 
@@ -59,3 +62,16 @@ export default {
   },
 };
 </script>
+
+<style lang="less" scoped>
+::-webkit-scrollbar {
+  border-radius: 5px;
+  background-color: rgb(99, 91, 91);
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: silver;
+}
+</style>

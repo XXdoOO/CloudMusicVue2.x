@@ -9,7 +9,7 @@
       ref="imgBox"
       @mouseover="clearActive"
       @mouseout="actionActive"
-      :style="{ left: imgtranslate }"
+      :style="{ left: imgtranslate, width: `${imgPage * 100}%` }"
     >
       <slot class="img"> </slot>
     </div>
@@ -54,7 +54,7 @@ export default {
   data() {
     return {
       // 当前轮播图的页数
-      isActive: 0,
+      isActive: 1,
 
       //轮播函数的赋值
       timer: "",
@@ -65,26 +65,17 @@ export default {
   },
   methods: {
     next() {
-      if (this.isActive < this.imgPage - 1) {
+      if (this.isActive === this.imgPage) {
+        this.isActive = 1;
+      } else {
         this.isActive++;
-      } else if (this.isActive >= this.imgPage - 1) {
-        this.isActive = 0;
       }
     },
     prev() {
-      if (this.isActive > 0) {
-        this.isActive--;
-      } else if (this.isActive === 0) {
-        this.isActive = this.imgPage - 1;
-      }
-    },
-    //定时切换函数
-    timeActive() {
-      console.log("定时函数");
-      if (this.isActive >= this.imgPage - 1) {
-        this.isActive = 0;
+      if (this.isActive === 1) {
+        this.isActive = this.imgPage;
       } else {
-        this.isActive++;
+        this.isActive--;
       }
     },
     //清除定时切换函数
@@ -105,8 +96,7 @@ export default {
     },
   },
   created() {
-    this.timer = null;
-    this.timer = setInterval(this.timeActive, this.time);
+    this.timer = setInterval(this.next(), this.time);
   },
 };
 </script>
@@ -125,7 +115,7 @@ export default {
   height: 100%;
 
   //小箭头
-  img {
+  > img {
     position: absolute;
     height: 10%;
     min-height: 20px;
@@ -146,15 +136,19 @@ export default {
   //中间内容层
   .imgBox {
     position: absolute;
+    left: 0;
+    top: 0;
     transition: 0.6s;
-    width: 100%;
     height: 100%;
+    display: flex;
+    justify-items: start;
 
     div {
       height: 100%;
       cursor: pointer;
     }
   }
+
   //小圆点
   .controlDot {
     position: absolute;

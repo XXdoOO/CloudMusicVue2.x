@@ -23,6 +23,9 @@ const RECOMMEND_URL = `/top/playlist/highquality`;
 // 排行榜
 const TOP_URL = `/toplist`;
 
+// 轮播图
+const Banner_URL = `/banner`;
+
 /**
  * 搜索
  * @param {string} 关键词 
@@ -89,4 +92,4 @@ function allPlaylistURL(uid) {
 }
 
 
-export default { loginURL, LOGOUT_URL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL,TOP_URL,  searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };
+export default { loginURL, LOGOUT_URL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL, TOP_URL, Banner_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };

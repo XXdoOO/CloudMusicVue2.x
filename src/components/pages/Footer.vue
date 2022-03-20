@@ -134,8 +134,10 @@ export default {
       },
       // 当前播放歌曲下标，初始值为父组件给定
       currentIndex2: null,
+
       // 当前播放歌曲是否为用户喜欢的歌曲
       isLike: false,
+      
       // 我喜欢歌单
       likeList: [],
       percentage: 0.5,
