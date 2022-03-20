@@ -18,10 +18,25 @@
     />
 
     <div class="content">
-      <router-view name="Home" :songList="songList" :imgPage="2">
-        <div style="width: 200%; height: 100%; background: green">
-          <!-- <div style="width: 50%; background: green"></div> -->
-        </div></router-view
+      <router-view
+        name="Home"
+        :songList="songList"
+        :imgPage="bannerList.length"
+      >
+        <a
+          target="_blank"
+          v-for="(item, index) in bannerList"
+          :key="index"
+          :href="item.url"
+          style="width: 10%; height: 100%"
+        >
+          <img
+            :src="item.imageUrl"
+            :alt="item.typeTitle"
+            style="height: 100%"
+          />
+        </a>
+        ></router-view
       >
 
       <router-view
@@ -98,6 +113,9 @@ export default {
       name: "",
       uid: null,
       songList: [],
+
+      // 轮播图
+      bannerList: [],
     };
   },
   watch: {
@@ -296,6 +314,16 @@ export default {
   // 获取audio
   mounted() {
     this.audio = this.$refs.audio;
+
+    axios.get("api" + this.GLOBAL.Banner_URL).then(
+      (response) => {
+        console.log(response.data.banners);
+        this.bannerList = response.data.banners;
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   },
 };
 </script>
