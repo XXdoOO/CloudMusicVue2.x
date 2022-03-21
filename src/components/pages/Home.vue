@@ -28,7 +28,7 @@ export default {
     //轮播间隔时间
     time: {
       type: Number,
-      default: 4000,
+      default: 3000,
     },
   },
   data() {

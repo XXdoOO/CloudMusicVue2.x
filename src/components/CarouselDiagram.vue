@@ -9,7 +9,7 @@
       ref="imgBox"
       @mouseover="clearActive"
       @mouseout="actionActive"
-      :style="{ left: imgtranslate, width: `${imgPage * 100}%` }"
+      :style="{ left: imgtranslate, width: `${1000}%` }"
     >
       <slot class="img"> </slot>
     </div>
@@ -22,8 +22,8 @@
           v-for="(item, index) in imgPage"
           :key="index"
           class="li"
-          :class="{ liActive: isActive === index }"
-          @click="isActive = index"
+          :class="{ liActive: isActive === index + 1 }"
+          @click="isActive = index + 1"
           @mouseover="clearActive"
           @mouseout="actionActive"
         >
@@ -38,7 +38,6 @@
 export default {
   name: "CarouselDiagram",
   props: {
-    //还需要自定义容器contain的宽度
     // 分页数量
     imgPage: {
       type: Number,
@@ -48,7 +47,7 @@ export default {
     //轮播间隔时间，毫秒
     time: {
       type: Number,
-      default: 4000,
+      default: 1000,
     },
   },
   data() {
@@ -86,17 +85,20 @@ export default {
     //执行定时切换函数
     actionActive() {
       console.log("执行定时切换函数");
-      this.timer = setInterval(this.timeActive, this.time);
+      this.timer = setInterval(() => {
+        this.next();
+      }, this.time);
     },
   },
   watch: {
     //轮播图的移动函数
     isActive(newVal) {
-      this.imgtranslate = -newVal * 100 + "%";
+      console.log(newVal);
+      this.imgtranslate = -1 * (newVal - 1) * 100 + "%";
     },
   },
   created() {
-    this.timer = setInterval(this.next(), this.time);
+    this.actionActive();
   },
 };
 </script>

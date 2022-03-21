@@ -11,8 +11,8 @@
     ></router-view>
 
     <Header
-      :imgSrc="imgSrc"
-      :name="name"
+      :imgSrc="user.avatar"
+      :name="user.name"
       :searchKeywords="searchKeywords"
       src="/login"
     />
@@ -58,7 +58,7 @@
       :audio="audio"
       :currentIndex="currentIndex"
       :currentMusicList="currentMusicList"
-      :uid="uid"
+      :uid="user.uid"
       :cutSong="cutSong"
     />
   </div>
@@ -106,12 +106,12 @@ export default {
         lyric: "未播放歌曲",
       },
 
-      // 头像图片
-      imgSrc: "",
+      user: {
+        avatar: "",
+        name: "",
+        uid: 0,
+      },
 
-      // 昵称
-      name: "",
-      uid: null,
       songList: [],
 
       // 轮播图
@@ -136,10 +136,10 @@ export default {
           case "myMusic":
             // 获取用户全部歌单
             await this.status();
-            console.log("获取用户全部歌单", this.uid);
+            console.log("获取用户全部歌单", this.user.uid);
             this.songList = [];
             axios
-              .get("api" + this.GLOBAL.allPlaylistURL(this.uid))
+              .get("api" + this.GLOBAL.allPlaylistURL(this.user.uid))
               .then((response) => {
                 console.log(response);
                 console.log(response.data.playlist);
@@ -163,9 +163,7 @@ export default {
             await axios.get("api" + this.GLOBAL.LOGOUT_URL).then((response) => {
               console.log(response);
               this.$router.push("/");
-              this.imgSrc = null;
-              this.name = null;
-              this.uid = null;
+              this.user = {};
               localStorage.clear("authorization");
               console.log("退出登录成功！");
             });
@@ -255,16 +253,14 @@ export default {
             (response) => {
               console.log("判断登录状态：", response);
               if (response.data.data.account && response.data.data.profile) {
-                this.imgSrc = response.data.data.profile.avatarUrl;
-                this.name = response.data.data.profile.nickname;
-                this.uid = response.data.data.profile.userId;
+                this.user.avatar = response.data.data.profile.avatarUrl;
+                this.user.name = response.data.data.profile.nickname;
+                this.user.uid = response.data.data.profile.userId;
 
-                console.log("用户已登录，uid", this.uid);
+                console.log("用户已登录，uid", this.user.uid);
                 localStorage.setItem("authorization", true);
               } else {
-                this.imgSrc = null;
-                this.name = null;
-                this.uid = null;
+                this.user = {};
                 localStorage.clear("authorization");
                 console.log("用户未登录");
               }
