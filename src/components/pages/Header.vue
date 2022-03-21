@@ -97,7 +97,7 @@ div.header {
   position: sticky;
   top: 0;
   z-index: 998;
-  border-bottom: 1px salmon solid;
+  border-bottom: 1px slategray solid;
 
   > div.logo {
     width: 176px;
@@ -131,7 +131,7 @@ div.header {
       line-height: 60px;
       width: 100px;
       text-align: center;
-      background: red;
+      background: slategray;
 
       a {
         text-decoration: none;

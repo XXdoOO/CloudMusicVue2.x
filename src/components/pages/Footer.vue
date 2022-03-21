@@ -280,7 +280,7 @@ div.footer {
   width: 100%;
   min-height: 80px;
   bottom: 0px;
-  border-top: red 1px solid;
+  // border-top: slategray 1px solid;
 
   > div.footerIn {
     height: 100%;
