@@ -515,7 +515,7 @@ export default {
           // width: 0%;
           text-align: center;
           overflow: hidden;
-          color: #158fc5;
+          // color: #158fc5;
           display: block;
           width: 100%;
           transform: scale(1);
@@ -535,7 +535,11 @@ export default {
         }
       }
     }
-
+    .qrCode:hover{
+      span{
+        color: #158fc5;
+      }
+    }
     .qrCode.show {
       left: 10%;
       width: 80%;

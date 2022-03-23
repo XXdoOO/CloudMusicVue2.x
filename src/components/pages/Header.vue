@@ -91,6 +91,7 @@ div.header {
   height: 40px;
   width: 80%;
   padding: 10px 10%;
+  min-width: 800px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -131,7 +132,7 @@ div.header {
       line-height: 60px;
       width: 100px;
       text-align: center;
-      background: slategray;
+      // background: slategray;
 
       a {
         text-decoration: none;
