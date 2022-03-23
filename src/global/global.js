@@ -5,17 +5,57 @@
  * @returns 
  */
 function loginURL(option, password) {
-  return `/login/${option}?${option}=${option}&password=${password}?time=${new Date().getTime()}`;
+  return `/login/${option}?${option}=${option}&password=${password}?timerstamp=${Date.now()}`;
+}
+
+/**
+ * 发送验证码
+ * @param {string} 手机号码
+ * @returns 
+ */
+function sendCaptchaURL(phone) {
+  return `/captcha/sent?phone=${phone}`;
+}
+
+/**
+ * 验证验证码
+ * @param {string} 手机号码
+ * @param {string} 验证码
+ * @returns 
+ */
+function verifyCaptchaURL(phone, captcha) {
+  return `/captcha/verify?phone=${phone}&captcha=${captcha}`;
+}
+
+// 生成二维码key
+const QRCODE_URL = `/login/qr/key?&timerstamp=${Date.now()}`;
+
+/**
+ * 生成二维码
+ * @param {number} 二维码key 
+ * @returns 
+ */
+function createQrCodeURL(key){
+  return `/login/qr/create?key=${key}&qrimg=true&timerstamp=${Date.now()}`;
+}
+
+/**
+ * 
+ * @param {number} 二维码key 
+ * @returns 
+ */
+function checkQrCodeURL(key) {
+  return `/login/qr/check?key=${key}&timerstamp=${Date.now()}`;
 }
 
 // 退出登录
-const LOGOUT_URL = `/logout?time=${new Date().getTime()}`;
+const LOGOUT_URL = `/logout?timerstamp=${Date.now()}`;
 
 // 登录状态
-const STATUS_URL = `/login/status?time=${new Date().getTime()}`;
+const STATUS_URL = `/login/status?timerstamp=${Date.now()}`;
 
 // 刷新登录状态
-const REFRESH_STATUS_URL = `/login/refresh?time=${new Date().getTime()}`;
+const REFRESH_STATUS_URL = `/login/refresh?timerstamp=${Date.now()}`;
 
 // 精品歌单
 const RECOMMEND_URL = `/top/playlist/highquality`;
@@ -92,4 +132,4 @@ function allPlaylistURL(uid) {
 }
 
 
-export default { loginURL, LOGOUT_URL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL, TOP_URL, Banner_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };
+export default { loginURL, LOGOUT_URL, QRCODE_URL, createQrCodeURL, checkQrCodeURL, sendCaptchaURL, verifyCaptchaURL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL, TOP_URL, Banner_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };

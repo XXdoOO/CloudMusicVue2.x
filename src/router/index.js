@@ -1,6 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router"
-import LoginRegister from "../components/pages/LoginRegister.vue";
+import LoginRegister2 from "../components/pages/LoginRegister2.vue";
 import Home from "../components/pages/Home.vue";
 import PlayList2 from "../components/PlayList2.vue";
 import MusicList from "../components/MusicList.vue";
@@ -52,7 +52,7 @@ const router = new VueRouter({
     {
       path: "/login",
       name: "login",
-      components: { LoginRegister }
+      components: { LoginRegister2 }
     },
     {
       path:"/logout",

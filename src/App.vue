@@ -5,9 +5,12 @@
   >
     <audio autoplay ref="audio"></audio>
     <router-view
-      name="LoginRegister"
+      name="LoginRegister2"
       :requestLogin="requestLogin"
       :clickMask="clickMask"
+      :sendCaptcha="sendCaptcha"
+      :showQrCode="showQrCode"
+      :qrCodeMsg="qrCodeMsg"
     ></router-view>
 
     <Header
@@ -112,10 +115,16 @@ export default {
         uid: 0,
       },
 
+      // 登录二维码信息
+      qrCodeMsg: { overdue: false, msg: "" },
+
       songList: [],
 
       // 轮播图
       bannerList: [],
+
+      // 二维码验证过期定时器
+      qrCodeTimer: null,
     };
   },
   watch: {
@@ -197,20 +206,111 @@ export default {
       );
     },
     // 请求登录
-    async requestLogin(username, userpwd) {
-      console.log(username, userpwd);
+    async requestLogin(loginmsg) {
+      console.log(loginmsg);
+
+      // 验证码登录
+      if (loginmsg.smsToggle) {
+        await axios
+          .post(
+            "api" +
+              this.GLOBAL.verifyCaptchaURL(loginmsg.username, loginmsg.password)
+          )
+          .then((response) => {
+            console.log("请求登录：", response);
+            axios.post("api" + this.GLOBAL.STATUS_URL).then(
+              (response) => {
+                console.log("判断登录状态：", response);
+                if (response.data.data.account && response.data.data.profile) {
+                  this.user.avatar = response.data.data.profile.avatarUrl;
+                  this.user.name = response.data.data.profile.nickname;
+                  this.user.uid = response.data.data.profile.userId;
+
+                  console.log("用户已登录，uid", this.user.uid);
+                  localStorage.setItem("authorization", true);
+                } else {
+                  this.user = {};
+                  localStorage.clear("authorization");
+                  console.log("用户未登录");
+                }
+              },
+              (error) => {
+                console.log(error);
+              }
+            );
+          });
+      } else {
+        // 手机或邮箱和密码登录
+        await axios
+          .post(
+            `api/login/cellphone?phone=${loginmsg.username}&password=${loginmsg.password}`
+          )
+          .then((response) => {
+            console.log("请求登录：", response);
+            if (response.data.code == 200) {
+              isLogin = true;
+              this.status();
+              this.clickMask();
+            }
+          });
+      }
       let isLogin = false;
-      await axios
-        .post(`api/login/cellphone?phone=${username}&password=${userpwd}`)
-        .then((response) => {
-          console.log("请求登录：", response);
-          if (response.data.code == 200) {
-            isLogin = true;
-            this.status();
-            this.clickMask();
-          }
-        });
+
       return isLogin;
+    },
+    // 发送验证码
+    async sendCaptcha(phone) {
+      await axios.get("api" + this.GLOBAL.sendCaptchaURL(phone)).then(
+        (response) => {
+          console.log(response);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    },
+    // 扫码登录
+    async showQrCode() {
+      clearInterval(this.qrCodeTimer);
+
+      let qrCode;
+      await axios.get("api" + this.GLOBAL.QRCODE_URL).then(async (response) => {
+        console.log(response);
+        await axios
+          .get("api" + this.GLOBAL.createQrCodeURL(response.data.data.unikey))
+          .then(
+            (response) => {
+              console.log(response.data.data.qrimg);
+              qrCode = response.data.data.qrimg;
+            },
+            (error) => {
+              console.log(error);
+            }
+          );
+
+        this.qrCodeTimer = setInterval(async () => {
+          await axios
+            .get("api" + this.GLOBAL.checkQrCodeURL(response.data.data.unikey))
+            .then((response) => {
+              console.log(response);
+              this.$set(this.qrCodeMsg, "msg", response.data.message);
+
+              // 登录成功
+              if (response.data.code === 803) {
+                clearInterval(this.qrCodeTimer);
+                this.status();
+                this.clickMask();
+              } else if (response.data.code === 800) {
+                // 过期
+                this.$set(this.qrCodeMsg, "overdue", true);
+
+                clearInterval(this.qrCodeTimer);
+              }
+            });
+        }, 3000);
+      });
+
+      return qrCode;
     },
     // 音乐列表切换歌单
     cutSongList(currentMusicList, currentIndex) {
