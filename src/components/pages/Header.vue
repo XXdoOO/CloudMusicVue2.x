@@ -1,8 +1,9 @@
 <template>
   <div class="header">
-    <div class="logo">
-      <a href="https://music.163.com"></a>
-    </div>
+    <a href="https://music.163.com">
+      <img src="../images/logo.png" />
+      <div>云上轻音</div>
+    </a>
 
     <ul class="option">
       <li
@@ -100,16 +101,16 @@ div.header {
   z-index: 998;
   border-bottom: 1px slategray solid;
 
-  > div.logo {
-    width: 176px;
-    height: 69px;
-    background: url(https://s2.music.126.net/style/web2/img/frame/topbar.png?d57b0144b7adea334105bfc091dffbdb)
-      no-repeat 0 0;
+  > a {
+    display: flex;
+    text-decoration: none;
+    justify-content: center;
+    align-items: center;
 
-    > a {
-      height: 100%;
-      width: 100%;
-      display: block;
+    > div {
+      color: white;
+      margin-left: 10px;
+      font-size: 20px;
     }
   }
 
