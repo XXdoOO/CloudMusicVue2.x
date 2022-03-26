@@ -9,6 +9,27 @@ function loginURL(option, password) {
 }
 
 /**
+ * 手机号码注册账号
+ * @param {string} phone 
+ * @param {string} password 
+ * @param {number} captcha 
+ * @param {string} nickname 
+ * @returns 
+ */
+function registerURL(phone, password, captcha, nickname) {
+  return `/register/cellphone?phone=${phone}&password=${password}&captcha=${captcha}&nickname=${nickname}?timerstamp=${Date.now()}`;
+}
+
+/**
+ * 检测手机号码是否注册
+ * @param {string} phone 
+ * @returns 
+ */
+function checkRegisterURL(phone){
+  return `/cellphone/existence/check?phone=${phone}`;
+}
+
+/**
  * 发送验证码
  * @param {string} 手机号码
  * @returns 
@@ -132,4 +153,4 @@ function allPlaylistURL(uid) {
 }
 
 
-export default { loginURL, LOGOUT_URL, QRCODE_URL, createQrCodeURL, checkQrCodeURL, sendCaptchaURL, verifyCaptchaURL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL, TOP_URL, Banner_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };
+export default { loginURL, registerURL, checkRegisterURL, LOGOUT_URL, QRCODE_URL, createQrCodeURL, checkQrCodeURL, sendCaptchaURL, verifyCaptchaURL, STATUS_URL, REFRESH_STATUS_URL, RECOMMEND_URL, TOP_URL, Banner_URL, searchURL, lyricURL, likeURL, allSongURL, songURL, allPlaylistURL, downloadURL };

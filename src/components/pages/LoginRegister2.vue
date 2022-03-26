@@ -166,7 +166,9 @@ export default {
   props: {
     clickMask: Function,
     requestLogin: Function,
+    requestRegister: Function,
     sendCaptcha: Function,
+    verifyCaptcha: Function,
     showQrCode: Function,
 
     // 二维码信息
@@ -258,13 +260,33 @@ export default {
       var isok1 = this.loginUsernameChange(this.loginmsg.username);
       var isok2 = this.loginPasswordChange();
       if (isok1 && isok2) {
-        // console.log("登录成功");
         this.loginmsg.smsToggle = this.smsToggle;
-        //发送登录信息
-        if (this.requestLogin(this.loginmsg) == true) {
-          console.log("登录成功" + 1);
+
+        // 验证码登录
+        if (this.loginmsg.smsToggle) {
+          this.verifyCaptcha(
+            this.loginmsg.username,
+            this.loginmsg.password
+          ).then((response) => {
+            console.log(response);
+            if (response) {
+              // 请求登录
+              this.requestLogin(this.loginmsg).then((response) => {
+                if (!response) {
+                  this.loginmsg.passwordtip = "账号或密码错误！";
+                }
+              });
+            } else {
+              this.loginmsg.passwordtip = "验证码错误！";
+            }
+          });
         } else {
-          console.log("登录失败" + 2);
+          // 请求登录
+          this.requestLogin(this.loginmsg).then((response) => {
+            if (!response) {
+              this.loginmsg.passwordtip = "账号或密码错误！";
+            }
+          });
         }
       }
     },
@@ -348,11 +370,20 @@ export default {
         this.registerPassword1Change(this.registermsg.password1) &&
         this.registerPassword2Change(this.registermsg.password2)
       ) {
-        if (this.requestLogin(this.loginmsg) == true) {
-          console.log("注册成功" + 1);
-        } else {
-          console.log("注册失败" + 2);
-        }
+        this.verifyCaptcha(
+          this.registermsg.username,
+          this.registermsg.smsCode
+        ).then((response) => {
+          if (response) {
+            this.requestRegister(this.registermsg).then((response) => {
+              if (!response) {
+                this.registermsg.smstip = "账号已注册！";
+              }
+            });
+          } else {
+            this.registermsg.passwordtip = "验证码错误！";
+          }
+        });
       }
     },
     //验证码发送倒计时
@@ -535,8 +566,8 @@ export default {
         }
       }
     }
-    .qrCode:hover{
-      span{
+    .qrCode:hover {
+      span {
         color: #158fc5;
       }
     }

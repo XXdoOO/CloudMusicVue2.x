@@ -7,8 +7,10 @@
     <router-view
       name="LoginRegister2"
       :requestLogin="requestLogin"
+      :requestRegister="requestRegister"
       :clickMask="clickMask"
       :sendCaptcha="sendCaptcha"
+      :verifyCaptcha="verifyCaptcha"
       :showQrCode="showQrCode"
       :qrCodeMsg="qrCodeMsg"
     ></router-view>
@@ -206,57 +208,60 @@ export default {
       );
     },
     // 请求登录
-    async requestLogin(loginmsg) {
-      console.log(loginmsg);
+    async requestLogin(loginMsg) {
+      console.log(loginMsg);
+      let isLogin = false;
 
-      // 验证码登录
-      if (loginmsg.smsToggle) {
-        await axios
-          .post(
-            "api" +
-              this.GLOBAL.verifyCaptchaURL(loginmsg.username, loginmsg.password)
-          )
-          .then((response) => {
-            console.log("请求登录：", response);
-            axios.post("api" + this.GLOBAL.STATUS_URL).then(
-              (response) => {
-                console.log("判断登录状态：", response);
-                if (response.data.data.account && response.data.data.profile) {
-                  this.user.avatar = response.data.data.profile.avatarUrl;
-                  this.user.name = response.data.data.profile.nickname;
-                  this.user.uid = response.data.data.profile.userId;
-
-                  console.log("用户已登录，uid", this.user.uid);
-                  localStorage.setItem("authorization", true);
-                } else {
-                  this.user = {};
-                  localStorage.clear("authorization");
-                  console.log("用户未登录");
-                }
-              },
-              (error) => {
-                console.log(error);
-              }
-            );
-          });
-      } else {
-        // 手机或邮箱和密码登录
-        await axios
-          .post(
-            `api/login/cellphone?phone=${loginmsg.username}&password=${loginmsg.password}`
-          )
-          .then((response) => {
+      // 手机或邮箱和密码登录
+      await axios
+        .post(
+          `api/login/cellphone?phone=${loginMsg.username}&password=${loginMsg.password}`
+        )
+        .then(
+          (response) => {
             console.log("请求登录：", response);
             if (response.data.code == 200) {
               isLogin = true;
               this.status();
               this.clickMask();
             }
-          });
-      }
-      let isLogin = false;
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
 
       return isLogin;
+    },
+    // 注册
+    async requestRegister(registerMsg) {
+      let isRegister = false;
+
+      await axios
+        .get("api" + this.GLOBAL.checkRegisterURL(registerMsg.username))
+        .then(async (response) => {
+          console.log(response);
+          // 账号未注册
+          if (response.exist === -1) {
+            await axios
+              .post(
+                "api" +
+                  this.GLOBAL.registerURL(
+                    registerMsg.username,
+                    registerMsg.password1,
+                    registerMsg.smsCode,
+                    `_${registerMsg.username}_`
+                  )
+              )
+              .then((resposne) => {
+                console.log(resposne);
+              });
+          } else {
+            isRegister = true;
+          }
+        });
+
+      return isRegister;
     },
     // 发送验证码
     async sendCaptcha(phone) {
@@ -268,6 +273,22 @@ export default {
           console.log(error);
         }
       );
+    },
+    // 验证验证码
+    async verifyCaptcha(phone, captcha) {
+      let isTrue = false;
+      await axios
+        .post("api" + this.GLOBAL.verifyCaptchaURL(phone, captcha))
+        .then(
+          (response) => {
+            console.log(response);
+            isTrue = response.data;
+          },
+          (error) => {
+            console.log(error);
+          }
+        );
+      return isTrue;
     },
     // 扫码登录
     async showQrCode() {
