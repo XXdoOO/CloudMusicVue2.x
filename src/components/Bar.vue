@@ -151,12 +151,10 @@ export default {
     jumpDot(e) {
       this.lineWidth = e.layerX;
 
-      console.log(this.lineWidth);
-
-      console.log("跳转百分比：", this.lineWidth / this.baseLineWidth);
-
-      this.jump(this.lineWidth / this.baseLineWidth);
       this.percentage2 = this.lineWidth / this.baseLineWidth;
+      console.log("跳转百分比：", this.percentage2);
+
+      this.jump(this.percentage2);
     },
   },
   // 获取点半径、底条的总长
@@ -169,14 +167,15 @@ export default {
     this.lineWidth = this.baseLineWidth * this.percentage2;
 
     // 窗口发生变化，根据百分比进行变更
-    window.onresize = () => {
+    window.addEventListener("resize", () => {
       // 重新获取总长
       this.baseLineWidth = baseLine.offsetWidth;
+      console.log("重新获取：", this.percentage2);
 
       this.lineWidth = this.baseLineWidth * this.percentage2;
       console.log(this.lineWidth, this.baseLineWidth, this.percentage2);
       console.log(this.lineWidth / this.baseLineWidth);
-    };
+    });
   },
 };
 </script>

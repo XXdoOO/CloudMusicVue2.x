@@ -93,7 +93,6 @@ export default {
   watch: {
     //轮播图的移动函数
     isActive(newVal) {
-      console.log(newVal);
       this.imgtranslate = -1 * (newVal - 1) * 100 + "%";
     },
   },

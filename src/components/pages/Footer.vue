@@ -76,7 +76,7 @@
       </div>
 
       <div class="volume">
-        <Volume :percentage="percentage" :audio="audio" />
+        <Volume :audio="audio" />
       </div>
     </div>
   </div>
@@ -140,7 +140,6 @@ export default {
       
       // 我喜欢歌单
       likeList: [],
-      percentage: 0.5,
     };
   },
   watch: {
