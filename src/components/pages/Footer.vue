@@ -137,7 +137,7 @@ export default {
 
       // 当前播放歌曲是否为用户喜欢的歌曲
       isLike: false,
-      
+
       // 我喜欢歌单
       likeList: [],
     };
