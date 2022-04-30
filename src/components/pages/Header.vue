@@ -18,6 +18,8 @@
 
     <SearchInput :searchKeywords="searchKeywords" />
 
+    <div>{{time}}</div>
+
     <PersonalInfo :src="src" :imgSrc="imgSrc" :menuList="menuList2" />
   </div>
 </template>
@@ -47,6 +49,7 @@ export default {
   },
   data() {
     return {
+      time: "",
       active: ["active", "", ""],
       menuList2: [
         { name: "", src: "/" },
@@ -83,6 +86,14 @@ export default {
       }
       this.$set(this.active, index, "active");
     },
+  },
+  mounted() {
+    setInterval(() => {
+      this.time = new Date(+new Date() + 8 * 3600 * 1000)
+        .toISOString()
+        .replace(/T/g, " ")
+        .replace(/\.[\d]{3}Z/, "");
+    }, 1000);
   },
 };
 </script>
@@ -148,6 +159,10 @@ div.header {
       opacity: 1;
       cursor: pointer;
     }
+  }
+
+  > div{
+    color: white;
   }
 }
 </style>

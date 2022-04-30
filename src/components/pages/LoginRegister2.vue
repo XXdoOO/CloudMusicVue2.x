@@ -25,7 +25,7 @@
         </div>
 
         <div class="text" @click="qrCodeActive">
-          <span>二维码登录</span>
+          <span>{{ loginText }}</span>
           <img src="../images/qrCodeArrow.png" class="qrCodeArrow" alt="" />
         </div>
       </div>
@@ -186,6 +186,7 @@ export default {
       loginPasswordInput: "请输入你的密码",
       qrCodeShow: false,
       passwordHidden: true,
+      loginText: "二维码登录",
 
       // 二维码链接
       qrCode: null,
@@ -447,10 +448,13 @@ export default {
     qrCodeActive() {
       this.qrCodeShow = !this.qrCodeShow;
       if (this.qrCodeShow) {
+        this.loginText = "账号密码登录/注册";
         this.showQrCode().then((response) => {
           this.qrCode = response;
         });
         console.log(this.qrCode);
+      }else{
+        this.loginText = "二维码登录";
       }
     },
   },
