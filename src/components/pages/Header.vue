@@ -2,7 +2,7 @@
   <div class="header">
     <a href="https://music.163.com">
       <img src="../images/logo.png" />
-      <div>云上轻音</div>
+      <div>云上轻音乐</div>
     </a>
 
     <ul class="option">

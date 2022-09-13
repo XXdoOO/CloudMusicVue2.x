@@ -260,7 +260,6 @@ export default {
             isRegister = true;
           }
         });
-
       return isRegister;
     },
     // 发送验证码
