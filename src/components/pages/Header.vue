@@ -6,19 +6,14 @@
     </a>
 
     <ul class="option">
-      <li
-        v-for="(item, index) in menuList"
-        :key="index"
-        :class="active[index]"
-        @click.stop="activeClass(index)"
-      >
+      <li v-for="(item, index) in menuList" :key="index" :class="active[index]" @click.stop="activeClass(index)">
         <router-link :to="item.link">{{ item.name }}</router-link>
       </li>
     </ul>
 
     <SearchInput :searchKeywords="searchKeywords" />
 
-    <div>{{time}}</div>
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:white">湘ICP备2022006790号</a>
 
     <PersonalInfo :src="src" :imgSrc="imgSrc" :menuList="menuList2" />
   </div>
@@ -49,7 +44,6 @@ export default {
   },
   data() {
     return {
-      time: "",
       active: ["active", "", ""],
       menuList2: [
         { name: "", src: "/" },
@@ -87,14 +81,6 @@ export default {
       this.$set(this.active, index, "active");
     },
   },
-  mounted() {
-    setInterval(() => {
-      this.time = new Date(+new Date() + 8 * 3600 * 1000)
-        .toISOString()
-        .replace(/T/g, " ")
-        .replace(/\.[\d]{3}Z/, "");
-    }, 1000);
-  },
 };
 </script>
 
@@ -112,20 +98,20 @@ div.header {
   z-index: 998;
   border-bottom: 1px slategray solid;
 
-  > a {
+  >a {
     display: flex;
     text-decoration: none;
     justify-content: center;
     align-items: center;
 
-    > div {
+    >div {
       color: white;
       margin-left: 10px;
       font-size: 20px;
     }
   }
 
-  > ul.option {
+  >ul.option {
     width: 300px;
     height: 60px;
     display: flex;
@@ -161,7 +147,7 @@ div.header {
     }
   }
 
-  > div{
+  >div {
     color: white;
   }
 }
